@@ -3,6 +3,7 @@
 
 #include <cg3/geometry/point2.h>
 #include <cg3/geometry/segment2.h>
+#include <cg3/utilities/color.h>
 #define BOUNDINGBOX 1e+6
 
 class Trapezoid
@@ -11,20 +12,23 @@ class Trapezoid
 public:
     Trapezoid() = default;
     Trapezoid(cg3::Point2d leftp, cg3::Point2d rightp, cg3::Segment2d top, cg3::Segment2d bottom);
-    cg3::Point2d getLeftp();
-    cg3::Point2d getRightp();
-    cg3::Segment2d getBottom();
-    cg3::Segment2d getTop();
+    const cg3::Point2d getLeftp() const;
+    const cg3::Point2d getRightp() const;
+    const cg3::Segment2d getBottom() const;
+    const cg3::Segment2d getTop() const;
+    const cg3::Color getColor() const;
     void setLeftp(cg3::Point2d leftp);
     void setRightp(cg3::Point2d rightp);
     void setBottom(cg3::Segment2d bottom);
     void setTop(cg3::Segment2d top);
+    void setColor(cg3::Color color);
 
 private:
     cg3::Point2d leftp;
     cg3::Point2d rightp;
     cg3::Segment2d bottom;
     cg3::Segment2d top;
+    cg3::Color color;
 
     size_t topleftnIndex;
     size_t toprightnIndex;

@@ -3,9 +3,16 @@
 
 #include <iostream>
 #include "trapezoid.h"
+#include <boost/type_index.hpp>
 
 struct AbstractNode{
     static size_t last_index;
+
+    protected:
+    size_t leftc;
+    size_t rightc;
+    size_t index;
+    std::string type;
 };
 
 
@@ -14,14 +21,7 @@ class DagNode : public AbstractNode{
     public:
         T key;
         DagNode(T key);
-
-    private:
-        size_t leftc;
-        size_t rightc;
-        size_t index;
+        //virtual AbstractNode search(cg3::Point2d p, DagNode<T>) = 0;
 };
 
-template class DagNode<Trapezoid>;
-template class DagNode<cg3::Point2d>;
-template class DagNode<cg3::Segment2d>;
 #endif // DAG_NODE_H

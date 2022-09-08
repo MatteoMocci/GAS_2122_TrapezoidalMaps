@@ -16,8 +16,7 @@ inline Trapezoid* algorithms::followSegment(TrapezoidalMap T, Dag D, cg3::Segmen
     // Punto 1
     cg3::Point2d p = s.p1();
     cg3::Point2d q = s.p2();
-    std::cout << p << std::endl;
-    std::cout << q << std::endl;
+    AbstractNode delta0 = D.search(p);
 
     //Punto 2
     //implementare la ricerca nel Dag passando come parametro il punto p

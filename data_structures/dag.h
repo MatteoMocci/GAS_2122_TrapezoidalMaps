@@ -7,9 +7,10 @@ class Dag
 {
     public:
         Dag();
+        AbstractNode search(cg3::Point2d p);
     private:
         std::vector<AbstractNode> d_vector;
-        void search();
+        size_t root = 0;
 };
 
 #endif // DAG_H

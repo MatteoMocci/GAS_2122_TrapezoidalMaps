@@ -8,27 +8,32 @@
  * @param bottom
  */
 Trapezoid::Trapezoid(cg3::Point2d leftp, cg3::Point2d rightp, cg3::Segment2d top, cg3::Segment2d bottom):
-    leftp(leftp), rightp(rightp), bottom(bottom), top(top){
+    leftp(leftp), rightp(rightp), bottom(bottom), top(top), color(cg3::Color(rand()%256, rand()%256, rand()%256)){
 
 }
 
 
-cg3::Point2d Trapezoid::getLeftp(){
+const cg3::Point2d Trapezoid::getLeftp() const{
     return this->leftp;
 }
-cg3::Point2d Trapezoid::getRightp(){
+const cg3::Point2d Trapezoid::getRightp() const{
     return this->rightp;
 }
-cg3::Segment2d Trapezoid::getBottom(){
+const cg3::Segment2d Trapezoid::getBottom() const{
     return this->bottom;
 }
-cg3::Segment2d Trapezoid::getTop(){
+const cg3::Segment2d Trapezoid::getTop() const{
     return this->top;
 }
+
+const cg3::Color Trapezoid::getColor() const{
+    return this->color;
+}
+
 void Trapezoid::setLeftp(cg3::Point2d leftp){
     this->leftp = leftp;
 }
-void Trapezoid::setRightp(cg3::Point2d rightp){
+void Trapezoid::setRightp(cg3::Point2d rightp) {
     this->rightp = rightp;
 }
 void Trapezoid::setBottom(cg3::Segment2d bottom){
@@ -38,3 +43,6 @@ void Trapezoid::setTop(cg3::Segment2d top){
     this->top = top;
 }
 
+void Trapezoid::setColor(cg3::Color color){
+    this->color = color;
+}
