@@ -1,19 +1,11 @@
 #include "dag_node.h"
-size_t AbstractNode::last_index = 0;
+size_t DagNode::last_index = 0;
 
-template <class T>
-DagNode<T>::DagNode(T key)
+DagNode::DagNode(nodeType type, size_t id):
+   dag_index(last_index), entity_id(id), type(type)
 {
-    this->key = key;
-    this->index = last_index;
     last_index++;
-    this->type = boost::typeindex::type_id<T>().pretty_name();
 }
 
-/*
-template<>
-DagNode<Trapezoid> DagNode<Trapezoid>::search(cg3::Point2d p, DagNode<Trapezoid> node){
-    return node;
-}
-*/
+
 

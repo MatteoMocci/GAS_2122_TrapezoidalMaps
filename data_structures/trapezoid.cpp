@@ -1,4 +1,5 @@
 #include "trapezoid.h"
+size_t Trapezoid::last_index = 0;
 /**
  * @brief Trapezoid::Trapezoid
  * This constructor initializes a trapezoid by initializing each of the four values with the values in input
@@ -8,10 +9,15 @@
  * @param bottom
  */
 Trapezoid::Trapezoid(cg3::Point2d leftp, cg3::Point2d rightp, cg3::Segment2d top, cg3::Segment2d bottom):
-    leftp(leftp), rightp(rightp), bottom(bottom), top(top), color(cg3::Color(rand()%256, rand()%256, rand()%256)){
-
+    leftp(leftp), rightp(rightp), bottom(bottom), top(top), color(cg3::Color(rand()%256, rand()%256, rand()%256)),
+    trapIndex(last_index)
+{
+    last_index++;
 }
 
+bool operator==(const Trapezoid& t1, const Trapezoid& t2){
+    return t1.trapIndex == t2.trapIndex;
+}
 
 const cg3::Point2d Trapezoid::getLeftp() const{
     return this->leftp;

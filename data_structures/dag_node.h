@@ -5,23 +5,21 @@
 #include "trapezoid.h"
 #include <boost/type_index.hpp>
 
-struct AbstractNode{
-    static size_t last_index;
-
-    protected:
-    size_t leftc;
-    size_t rightc;
-    size_t index;
-    std::string type;
-};
+enum nodeType {POINT,SEGMENT,TRAPEZOID};
 
 
-template <class T>
-class DagNode : public AbstractNode{
+class DagNode{
     public:
-        T key;
-        DagNode(T key);
-        //virtual AbstractNode search(cg3::Point2d p, DagNode<T>) = 0;
+        DagNode(nodeType type, size_t id);
+        static size_t last_index;
+
+    private:
+        size_t leftc;
+        size_t rightc;
+        size_t dag_index;
+        size_t entity_id;
+        nodeType type;
 };
+
 
 #endif // DAG_NODE_H

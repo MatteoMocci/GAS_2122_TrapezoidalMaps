@@ -2,15 +2,12 @@
 #define TRAPEZOIDALMAP_H
 
 #include "trapezoid.h"
-#include <cg3/geometry/point2.h>
-#include <cg3/geometry/segment2.h>
-
 
 class TrapezoidalMap
 {
     public:
         TrapezoidalMap();
-        void splitin4(cg3::Segment2d s);
+        void splitin4(cg3::Segment2d s, Trapezoid t_split);
         const std::vector<Trapezoid>& getMap() const;
 
     private:

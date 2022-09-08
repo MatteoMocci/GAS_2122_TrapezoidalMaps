@@ -3,13 +3,15 @@
 
 #include "dag_node.h"
 
+
 class Dag
 {
     public:
         Dag();
-        AbstractNode search(cg3::Point2d p);
+        std::vector<DagNode>& getdVector();
+        void addNode(DagNode n);
     private:
-        std::vector<AbstractNode> d_vector;
+        std::vector<DagNode> dVector;
         size_t root = 0;
 };
 
