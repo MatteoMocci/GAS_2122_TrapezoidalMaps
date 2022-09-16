@@ -8,42 +8,27 @@ TrapezoidalMap::TrapezoidalMap()
                   cg3::Segment2d(cg3::Point2d(-BOUNDINGBOX,BOUNDINGBOX),cg3::Point2d(BOUNDINGBOX,BOUNDINGBOX)),
                   cg3::Segment2d(cg3::Point2d(-BOUNDINGBOX,-BOUNDINGBOX),cg3::Point2d(BOUNDINGBOX,-BOUNDINGBOX))
                   );
+    t.setId(0);
     t_map.push_back(t);
 
 }
 
-const std::vector<Trapezoid>& TrapezoidalMap::getMap() const{
+const std::vector<Trapezoid> TrapezoidalMap::getMap() const{
     return t_map;
 }
 
-void TrapezoidalMap::splitin4(cg3::Segment2d s, Trapezoid t_split){
-    Trapezoid t1 = Trapezoid(
-                t_split.getLeftp(),
-                cg3::Point2d(s.p1().x(),t_split.getLeftp().y()),
-                cg3::Segment2d(t_split.getTop().p1(),cg3::Point2d(s.p1().x(), t_split.getTop().p1().y())),
-                cg3::Segment2d(t_split.getBottom().p1(),cg3::Point2d(s.p1().x(), t_split.getBottom().p1().y()))
-                );
-    Trapezoid t2 = Trapezoid(
-                s.p1(),
-                s.p2(),
-                cg3::Segment2d(cg3::Point2d(s.p1().x(),t_split.getTop().p1().y()),cg3::Point2d(s.p2().x(),t_split.getTop().p2().y())),
-                s
-                );
-    Trapezoid t3 = Trapezoid(
-                cg3::Point2d(s.p1().x(),t_split.getBottom().p1().y()),
-                cg3::Point2d(s.p2().x(),t_split.getBottom().p2().y()),
-                s,
-                cg3::Segment2d(cg3::Point2d(s.p1().x(),t_split.getBottom().p1().y()), cg3::Point2d(s.p2().x(),t_split.getBottom().p2().y()))
-                );
-    Trapezoid t4 = Trapezoid(
-                cg3::Point2d(s.p2().x(),t_split.getLeftp().y()),
-                t_split.getRightp(),
-                cg3::Segment2d(cg3::Point2d(s.p2().x(),t_split.getTop().p2().y()),t_split.getTop().p2()),
-                cg3::Segment2d(cg3::Point2d(s.p2().x(),t_split.getBottom().p2().y()),t_split.getBottom().p2())
-                );
-    t_map.pop_back();
-    t_map.push_back(t1);
-    t_map.push_back(t2);
-    t_map.push_back(t3);
-    t_map.push_back(t4);
+size_t TrapezoidalMap::insertTrapezoid(Trapezoid& t){
+    t.setId(t_map.size());
+    t_map.push_back(t);
+    return t_map.size();
 }
+
+void TrapezoidalMap::replaceTrapezoid(size_t index, Trapezoid& t){
+    t.setId(index);
+    t_map[index] = t;
+}
+
+Trapezoid& TrapezoidalMap::getTrapezoid(size_t index){
+    return t_map[index];
+}
+

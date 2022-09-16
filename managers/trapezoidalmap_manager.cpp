@@ -84,8 +84,6 @@ TrapezoidalMapManager::TrapezoidalMapManager(QWidget *parent) :
     //and re-drawing it again. See how we implemented the drawing of the bounding box and 
     //the dataset.
 
-    algorithms::updateDag(drawableMap, drawableMap.getMap()[0], dag);
-
 
 
     //#####################################################################
@@ -198,8 +196,7 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     //it more efficient in memory. However, depending on how you implement your algorithms and data 
     //structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
 
-    Dag dag = Dag();
-    drawableMap.splitin4(segment,drawableMap.getMap()[0]);
+    algorithms::splitin4(drawableMap,segment,dag);
 
 
     //#####################################################################
@@ -250,8 +247,9 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
     //the output trapezoid in the canvas (DrawableTrapezoidMap should implement the method
     //to do that).
 
-
-
+    size_t query_index = algorithms::queryPoint(dag, queryPoint);
+    Trapezoid t = drawableMap.getMap()[query_index];
+    t.setColor(cg3::Color(250,218,221));
 
 
     //#####################################################################
@@ -260,7 +258,6 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
 
     //You can delete this line after you implement the algorithm: it is
     //just needed to suppress the unused-variable warning
-    CG3_SUPPRESS_WARNING(queryPoint);
 }
 
 /**

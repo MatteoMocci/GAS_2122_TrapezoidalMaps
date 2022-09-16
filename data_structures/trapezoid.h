@@ -17,13 +17,14 @@ public:
     const cg3::Segment2d getBottom() const;
     const cg3::Segment2d getTop() const;
     const cg3::Color getColor() const;
+    size_t getId() const;
     void setLeftp(cg3::Point2d leftp);
     void setRightp(cg3::Point2d rightp);
     void setBottom(cg3::Segment2d bottom);
     void setTop(cg3::Segment2d top);
     void setColor(cg3::Color color);
+    void setId(size_t index);
     friend bool operator==(const Trapezoid&, const Trapezoid&);
-    static size_t last_index;
 
 private:
     cg3::Point2d leftp;

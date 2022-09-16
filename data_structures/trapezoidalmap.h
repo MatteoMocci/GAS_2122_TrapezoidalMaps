@@ -7,11 +7,15 @@ class TrapezoidalMap
 {
     public:
         TrapezoidalMap();
-        void splitin4(cg3::Segment2d s, Trapezoid t_split);
-        const std::vector<Trapezoid>& getMap() const;
+        const std::vector<Trapezoid> getMap() const;
+        size_t insertTrapezoid(Trapezoid& t);
+        void replaceTrapezoid(size_t index, Trapezoid& t);
+        Trapezoid& getTrapezoid(size_t index);
+
 
     private:
         std::vector<Trapezoid> t_map;
+
 };
 
 #endif // TRAPEZOIDALMAP_H
