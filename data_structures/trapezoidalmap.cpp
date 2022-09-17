@@ -3,14 +3,18 @@
 
 TrapezoidalMap::TrapezoidalMap()
 {
+    insertBoundingBoxT();
+}
+
+void TrapezoidalMap::insertBoundingBoxT(){
     Trapezoid t = Trapezoid(cg3::Point2d(-BOUNDINGBOX,-BOUNDINGBOX),
                   cg3::Point2d(BOUNDINGBOX,-BOUNDINGBOX),
                   cg3::Segment2d(cg3::Point2d(-BOUNDINGBOX,BOUNDINGBOX),cg3::Point2d(BOUNDINGBOX,BOUNDINGBOX)),
                   cg3::Segment2d(cg3::Point2d(-BOUNDINGBOX,-BOUNDINGBOX),cg3::Point2d(BOUNDINGBOX,-BOUNDINGBOX))
                   );
     t.setId(0);
+    t.setColor(cg3::Color(144,238,144));
     t_map.push_back(t);
-
 }
 
 const std::vector<Trapezoid> TrapezoidalMap::getMap() const{
@@ -30,5 +34,10 @@ void TrapezoidalMap::replaceTrapezoid(size_t index, Trapezoid& t){
 
 Trapezoid& TrapezoidalMap::getTrapezoid(size_t index){
     return t_map[index];
+}
+
+void TrapezoidalMap::clearTmap(){
+    t_map.clear();
+    insertBoundingBoxT();
 }
 

@@ -11,6 +11,8 @@ class TrapezoidalMap
         size_t insertTrapezoid(Trapezoid& t);
         void replaceTrapezoid(size_t index, Trapezoid& t);
         Trapezoid& getTrapezoid(size_t index);
+        void clearTmap();
+        void insertBoundingBoxT();
 
 
     private:

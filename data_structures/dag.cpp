@@ -1,9 +1,13 @@
 #include "dag.h"
 
 Dag::Dag(){
-        DagNode n = DagNode(TRAPEZOID, 0);
-        n.setDagId(0);
-        dVector.push_back(n);
+    insertBoundingBoxD();
+}
+
+void Dag::insertBoundingBoxD(){
+    DagNode n = DagNode(TRAPEZOID, 0);
+    n.setDagId(0);
+    dVector.push_back(n);
 }
 
 std::vector<DagNode>& Dag::getdVector(){
@@ -88,3 +92,9 @@ size_t Dag::getVectorSize(nodeType type){
     }
 }
 
+void Dag::clearDag(){
+    dVector.clear();
+    pVector.clear();
+    sVector.clear();
+    insertBoundingBoxD();
+}

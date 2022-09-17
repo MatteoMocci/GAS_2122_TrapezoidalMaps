@@ -25,6 +25,8 @@ class Dag
         cg3::Point2d& getElementInPVector(size_t index);
         DagNode& getElementInDVector(size_t index);
         cg3::Segment2d& getElementInSVector(size_t index);
+        void clearDag();
+        void insertBoundingBoxD();
 
 
     private:

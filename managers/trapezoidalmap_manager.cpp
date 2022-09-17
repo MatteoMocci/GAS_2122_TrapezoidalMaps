@@ -195,8 +195,14 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     //already in the structure. You could use the same approach for your trapezoidal map to make
     //it more efficient in memory. However, depending on how you implement your algorithms and data 
     //structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
+    if(segment.p1() > segment.p2()){
+        cg3::Segment2d orderedSegment = cg3::Segment2d(segment.p2(),segment.p1());
+        algorithms::splitin4(drawableMap,orderedSegment,dag);
+    }
+    else{
+        algorithms::splitin4(drawableMap,segment,dag);
+    }
 
-    algorithms::splitin4(drawableMap,segment,dag);
 
 
     //#####################################################################
@@ -254,10 +260,6 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
 
     //#####################################################################
 
-
-
-    //You can delete this line after you implement the algorithm: it is
-    //just needed to suppress the unused-variable warning
 }
 
 /**
@@ -269,8 +271,9 @@ void TrapezoidalMapManager::clearTrapezoidalMap()
     //Clear here your trapezoidal map data structure.
 
 
-
     //#####################################################################
+    drawableMap.clearTmap();
+    dag.clearDag();
 }
 
 
