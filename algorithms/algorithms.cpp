@@ -136,40 +136,50 @@ size_t algorithms::queryPoint(Dag dag, cg3::Point2d p){
 }
 
 void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D){
+    char dummy;
     size_t dag_id = queryPoint(D,s.p1()); //retrieve the id of the trapezoid containing the point
     size_t trap_id = D.getElementInDVector(dag_id).getEntityId();
     Trapezoid t_split = T.getTrapezoid(trap_id); //retrieve the trapezoid
-
+    cg3::Segment2d proj1 = cg3::Segment2d(cg3::Point2d(s.p1().x(),BOUNDINGBOX),cg3::Point2d(s.p1().x(), -BOUNDINGBOX));
+    cg3::Segment2d proj2 = cg3::Segment2d(cg3::Point2d(s.p2().x(),BOUNDINGBOX),cg3::Point2d(s.p2().x(), -BOUNDINGBOX));
     //create the left trapezoid
+
+    cg3::Point2d p1t, p1b, p2t, p2b;
+    cg3::checkSegmentIntersection2(t_split.getTop(),proj1,dummy,0,p1t);
+    cg3::checkSegmentIntersection2(t_split.getBottom(),proj1,dummy,0,p1b);
+    cg3::checkSegmentIntersection2(t_split.getTop(),proj2,dummy,0,p2t);
+    cg3::checkSegmentIntersection2(t_split.getBottom(),proj2,dummy,0,p2b);
+
+
     Trapezoid tleft = Trapezoid(
                 t_split.getLeftp(),
                 s.p1(),
-                cg3::Segment2d(t_split.getTop().p1(),cg3::Point2d(s.p1().x(), t_split.getTop().p1().y())),
-                cg3::Segment2d(t_split.getBottom().p1(),cg3::Point2d(s.p1().x(), t_split.getBottom().p1().y()))
+                cg3::Segment2d(t_split.getTop().p1(),p1t),
+                cg3::Segment2d(t_split.getBottom().p1(),p1b)
                 );
 
     //create the trapezoid above
     Trapezoid ttop = Trapezoid(
                 s.p1(),
                 s.p2(),
-                cg3::Segment2d(cg3::Point2d(s.p1().x(),t_split.getTop().p1().y()),cg3::Point2d(s.p2().x(),t_split.getTop().p2().y())),
+                cg3::Segment2d(p1t,p2t),
                 s
                 );
 
     //create the trapezoid below
     Trapezoid tbottom = Trapezoid(
-                cg3::Point2d(s.p1().x(),t_split.getBottom().p1().y()),
-                cg3::Point2d(s.p2().x(),t_split.getBottom().p2().y()),
+                s.p1(),
+                s.p2(),
                 s,
-                cg3::Segment2d(cg3::Point2d(s.p1().x(),t_split.getBottom().p1().y()), cg3::Point2d(s.p2().x(),t_split.getBottom().p2().y()))
+                cg3::Segment2d(p1b,p2b)
                 );
 
     //create the right trapezoid
     Trapezoid tright = Trapezoid(
-                cg3::Point2d(s.p2().x(),t_split.getLeftp().y()),
+                s.p2(),
                 t_split.getRightp(),
-                cg3::Segment2d(cg3::Point2d(s.p2().x(),t_split.getTop().p2().y()),t_split.getTop().p2()),
-                cg3::Segment2d(cg3::Point2d(s.p2().x(),t_split.getBottom().p2().y()),t_split.getBottom().p2())
+                cg3::Segment2d(p2t,t_split.getTop().p2()),
+                cg3::Segment2d(p2b,t_split.getBottom().p2())
                 );
 
     T.replaceTrapezoid(trap_id,tleft);//delete the old trapezoid

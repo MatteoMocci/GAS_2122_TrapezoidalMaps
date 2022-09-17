@@ -4,6 +4,7 @@
 #include "data_structures/trapezoidalmap.h"
 #include "data_structures/dag.h"
 #include <iostream>
+#include "cg3/geometry/intersections2.h"
 
 namespace algorithms{
    DagNode followSegment(std::vector<Trapezoid> T, Dag D, cg3::Segment2d s);
