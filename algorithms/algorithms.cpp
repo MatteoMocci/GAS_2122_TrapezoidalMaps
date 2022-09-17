@@ -1,11 +1,5 @@
 #include "algorithms.h"
 
-#define P2_NODE dSize
-#define S_NODE dSize + 1
-#define A_NODE dSize + 2
-#define B_NODE dSize + 3
-#define C_NODE dSize + 4
-#define D_NODE dSize + 5
 /*
  * Input. 	A trapezoidal map T, a search structure D for T, and a new segment si
  * Output. 	The sequence Δ0, Δ1, …, Δk of trapezoids intersected by si
@@ -28,7 +22,19 @@ DagNode algorithms::followSegment(std::vector<Trapezoid> T, Dag D, cg3::Segment2
     //implementare la ricerca nel Dag passando come parametro il punto p
 }
 */
-
+/**
+ * @brief algorithms::updateDag
+ * This method updates the Dag after the segment insertion, when a split in 4 occurs.
+ * The node of the trapezoid intersected by the segment is removed. The nodes for the segment, the two endpoints
+ * and the four trapezoids are created and added to the dag, setting correctly their children.
+ * @param D a reference to the Dag
+ * @param s the segment inserted
+ * @param tsplit the index of the dag node representing the trapezoid of the split
+ * @param tleft the id of the trapezoid to the left
+ * @param tright the id of the trapezoid to the right
+ * @param ttop the id of the trapezoid above
+ * @param tbottom the id of the trapezoid below
+ */
 void algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t tleft, size_t tright, size_t ttop, size_t tbottom){
 
     //obtain the size of the vectors of dagNodes, points and segment
@@ -72,7 +78,13 @@ void algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t tleft
     D.insertInVector(s);
 
 }
-
+/**
+ * @brief algorithms::getIndex
+ * This method returns the index in which an element of type T inside a vector of type T
+ * @param v the vector to check
+ * @param K the element to find in the vector
+ * @return the position of the element in the vector, -1 if the element has not been found
+ */
 template<typename T>
 size_t algorithms::getIndex(std::vector<T> v, T K)
 {
@@ -91,6 +103,13 @@ size_t algorithms::getIndex(std::vector<T> v, T K)
     }
 }
 
+/**
+ * @brief algorithms::isAbove
+ * This method checks if a point p is Above a segment s
+ * @param s the segment to check
+ * @param p the point to check
+ * @return true if the point is above the segment, false otherwise
+ */
 bool algorithms::isAbove(cg3::Segment2d s, cg3::Point2d p){
     double v1[] {s.p2().x() - s.p1().x(), s.p2().y() - s.p1().y()};
     double v2[] = {s.p2().x()-p.x(), s.p2().y() -p.y()};
@@ -104,30 +123,47 @@ bool algorithms::isAbove(cg3::Segment2d s, cg3::Point2d p){
 
 }
 
+/**
+ * This method queries the Dag with a point.
+ * The query returns the id of the node representing in the Dag the trapezoid that intersects the point
+ * If the current node is a point, then it is checked if the querypoint lies to the left or to the right
+ * of the point in the node. If it is in the left, the query proceeds to the left, otherwise to the right.
+ * If the current node is a segment, then it is checked if the querypoint is above or below the segment.
+ * If it is above, the query proceeds to the left. If it is below, the query proceeds to the right.
+ * If the current node is a trapezoid, return that node
+ * @brief algorithms::queryPoint
+ * @param dag the dag to use for the query
+ * @param p the point for which to check the trapezoid in which the point is contained
+ * @return the id of the node of the DagVector representing the trapezoid containing the point
+ */
 size_t algorithms::queryPoint(Dag dag, cg3::Point2d p){
-    DagNode d = dag.getElementInDVector(0);
+    DagNode d = dag.getElementInDVector(0); //start from the root of the dag
     while(true){
-        switch(d.getNodeType()){
-            case POINT:
+        switch(d.getNodeType()){ //check the type of the node
+            case POINT: //if it's a point
                 if(p.x() < dag.getElementInPVector(d.getEntityId()).x()){
+                    //check if the query point lies to the left of the point of the node
                     d = dag.getElementInDVector(d.getLeftC());
+                    //if yes, go to the left child
                 }
                 else{
                     d = dag.getElementInDVector(d.getRightC());
+                    //if no, go to the right child
                 }
             break;
-            case SEGMENT:{
+            case SEGMENT:{ //if it's a segment
                 cg3::Segment2d s = dag.getElementInSVector(d.getEntityId());
-                if(isAbove(s,p)){
-                    d = dag.getElementInDVector(d.getLeftC());
+                if(isAbove(s,p)){//check if the point is above the segment
+                    d = dag.getElementInDVector(d.getLeftC()); //if yes, go to the left child
                 }
                 else{
-                   d = dag.getElementInDVector(d.getRightC());
+                   d = dag.getElementInDVector(d.getRightC()); //if no, go to the right child
                 }
             }
             break;
-            case TRAPEZOID:
+            case TRAPEZOID: //if it's a trapezoid
                 return d.getDagId();
+                //return the id of the node of the dag that represents that trapezoid
             break;
         default:
             break;
@@ -135,22 +171,42 @@ size_t algorithms::queryPoint(Dag dag, cg3::Point2d p){
    }
 }
 
+/**
+ * @brief algorithms::splitin4
+ * This method performs a split in 4. The intersecting face is removed from the trapezoidal map and the
+ * 4 new trapezoid generated are inserted. Then, the updateDag() method is called in order to
+ * reflect the changes in the trapezoidal map in the DAG as well.
+ * @param T a reference to the TrapezoidalMap
+ * @param s a reference to the segment that caused the split in 4
+ * @param D a refernece to the Dag
+ */
 void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D){
     char dummy;
-    size_t dag_id = queryPoint(D,s.p1()); //retrieve the id of the trapezoid containing the point
+    size_t dag_id = queryPoint(D,s.p1());
+    //retrieve the id of the dag node representing the trapezoid containing the point
     size_t trap_id = D.getElementInDVector(dag_id).getEntityId();
+    //retrieve the id of the trapezoid
     Trapezoid t_split = T.getTrapezoid(trap_id); //retrieve the trapezoid
-    cg3::Segment2d proj1 = cg3::Segment2d(cg3::Point2d(s.p1().x(),BOUNDINGBOX),cg3::Point2d(s.p1().x(), -BOUNDINGBOX));
-    cg3::Segment2d proj2 = cg3::Segment2d(cg3::Point2d(s.p2().x(),BOUNDINGBOX),cg3::Point2d(s.p2().x(), -BOUNDINGBOX));
-    //create the left trapezoid
+
+    //these 2 segments represent the projection on the x axis of the 2 endpoints of the segment
+    cg3::Segment2d proj1 = cg3::Segment2d(cg3::Point2d(s.p1().x(),BOUNDINGBOX),
+                                          cg3::Point2d(s.p1().x(), -BOUNDINGBOX));
+    cg3::Segment2d proj2 = cg3::Segment2d(cg3::Point2d(s.p2().x(),BOUNDINGBOX),
+                                          cg3::Point2d(s.p2().x(), -BOUNDINGBOX));
+
+
 
     cg3::Point2d p1t, p1b, p2t, p2b;
+    //the four point of intersections: the intersection with top and bottom of the two projection segments
+
+    //calculate the intersections
     cg3::checkSegmentIntersection2(t_split.getTop(),proj1,dummy,0,p1t);
     cg3::checkSegmentIntersection2(t_split.getBottom(),proj1,dummy,0,p1b);
     cg3::checkSegmentIntersection2(t_split.getTop(),proj2,dummy,0,p2t);
     cg3::checkSegmentIntersection2(t_split.getBottom(),proj2,dummy,0,p2b);
 
 
+    //create the left trapezoid
     Trapezoid tleft = Trapezoid(
                 t_split.getLeftp(),
                 s.p1(),
@@ -182,11 +238,12 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D){
                 cg3::Segment2d(p2b,t_split.getBottom().p2())
                 );
 
-    T.replaceTrapezoid(trap_id,tleft);//delete the old trapezoid
+    T.replaceTrapezoid(trap_id,tleft);//replace the old trapezoid in the trapezoidal map with tleft
+    //insert the other trapezoids in the trapezoidal map
     T.insertTrapezoid(ttop);
     T.insertTrapezoid(tbottom);
     T.insertTrapezoid(tright);
 
-    updateDag(D,s,dag_id,tleft.getId(),tright.getId(),ttop.getId(),tbottom.getId());
+    updateDag(D,s,dag_id,tleft.getId(),tright.getId(),ttop.getId(),tbottom.getId()); //update the Dag
 }
 

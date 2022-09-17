@@ -6,8 +6,13 @@
 class TrapezoidalMap
 {
     public:
+        //constructors
         TrapezoidalMap();
+
+        //getter
         const std::vector<Trapezoid> getMap() const;
+
+        //methods for managing the vector of trapezoids
         size_t insertTrapezoid(Trapezoid& t);
         void replaceTrapezoid(size_t index, Trapezoid& t);
         Trapezoid& getTrapezoid(size_t index);
@@ -16,7 +21,7 @@ class TrapezoidalMap
 
 
     private:
-        std::vector<Trapezoid> t_map;
+        std::vector<Trapezoid> t_map; //the vector containing the trapezoids
 
 };
 

@@ -6,8 +6,8 @@ cg3::Color Trapezoid::lastColor = cg3::Color(0,0,0);
  * This constructor initializes a trapezoid by initializing each of the four values with the values in input
  * @param leftp the point to the left of the trapezoid
  * @param rightp the point to the right of the trapezoid
- * @param top the segment in the top 
- * @param bottom
+ * @param top the segment above the trapezoid
+ * @param bottom the segment below the trapezoid
  */
 Trapezoid::Trapezoid(cg3::Point2d leftp, cg3::Point2d rightp, cg3::Segment2d top, cg3::Segment2d bottom):
     leftp(leftp), rightp(rightp), bottom(bottom), top(top), color(cg3::Color(rand()%256, rand()%256, rand()%256)),
@@ -16,64 +16,148 @@ Trapezoid::Trapezoid(cg3::Point2d leftp, cg3::Point2d rightp, cg3::Segment2d top
 
 }
 
+/**
+ * @brief operator ==
+ * Override of the == operator for trapezoids. Two trapezoids are equal when they both have the same index
+ * @param t1 the first trapezoid to compare
+ * @param t2 the second trapezoid to compare
+ * @return true if the two trapezoids are equal, false otherwise
+ */
 bool operator==(const Trapezoid& t1, const Trapezoid& t2){
     return t1.trapIndex == t2.trapIndex;
 }
 
+/**
+ * @brief Trapezoid::getLeftp
+ * @return the point to the left of the trapezoid
+ */
 const cg3::Point2d Trapezoid::getLeftp() const{
     return this->leftp;
 }
+
+/**
+ * @brief Trapezoid::getRightp
+ * @return the point to the right of the trapezoid
+ */
 const cg3::Point2d Trapezoid::getRightp() const{
     return this->rightp;
 }
+
+/**
+ * @brief Trapezoid::getBottom
+ * @return the segment below the trapezoid
+ */
 const cg3::Segment2d Trapezoid::getBottom() const{
     return this->bottom;
 }
+
+/**
+ * @brief Trapezoid::getTop
+ * @return the segment above the trapezoid
+ */
 const cg3::Segment2d Trapezoid::getTop() const{
     return this->top;
 }
 
+/**
+ * @brief Trapezoid::getColor
+ * @return the color to use for drawing the trapezoid
+ */
 const cg3::Color Trapezoid::getColor() const{
     return this->color;
 }
 
+/**
+ * @brief Trapezoid::getBorderColor
+ * @return the color to use for the border of the trapezoid
+ */
 const cg3::Color Trapezoid::getBorderColor() const{
     return this->borderColor;
 }
-
+/**
+ * @brief Trapezoid::getBorderWidth
+ * @return the value of the width to use for the border of the trapezoid
+ */
 size_t Trapezoid::getBorderWidth() const{
     return this->borderWidth;
 }
 
+/**
+ * @brief Trapezoid::getId
+ * @return the numeric id which identifies the trapezoid
+ */
 size_t Trapezoid::getId() const{
     return this->trapIndex;
 }
 
+/**
+ * @brief Trapezoid::setLeftp
+ * This method sets the value of the left point member of the trapezoid
+ * @param leftp the point to set as left
+ */
 void Trapezoid::setLeftp(cg3::Point2d leftp){
     this->leftp = leftp;
 }
+
+/**
+ * @brief Trapezoid::setRightp
+ * This method sets the value of the right point member of the trapezoid
+ * @param rightp the point to set as right
+ */
 void Trapezoid::setRightp(cg3::Point2d rightp) {
     this->rightp = rightp;
 }
+
+/**
+ * @brief Trapezoid::setBottom
+ * This method sets the value of the bottom member of the trapezoid
+ * @param bottom the segment to set as bottom
+ */
 void Trapezoid::setBottom(cg3::Segment2d bottom){
     this->bottom = bottom;
 }
+
+/**
+ * @brief Trapezoid::setTop
+ * This method sets the value of the top member of the trapezoid
+ * @param top the segment to set as top
+ */
 void Trapezoid::setTop(cg3::Segment2d top){
     this->top = top;
 }
 
+/**
+ * @brief Trapezoid::setId
+ * This method sets the value of the id of the trapezoid, the position of the trapezoid in the trapezoidalmap
+ * @param index the number to set as id
+ */
 void Trapezoid::setId(size_t index){
     trapIndex = index;
 }
 
+/**
+ * @brief Trapezoid::setColor
+ * This method sets the value of the color to use for filling the trapezoid
+ * @param color the color to set
+ */
 void Trapezoid::setColor(cg3::Color color){
     this->color = color;
 }
 
+/**
+ * @brief Trapezoid::setBorderColor
+ * This method sets the value of the color to use for the border of the trapezoid
+ * @param color the color to set
+ */
 void Trapezoid::setBorderColor(cg3::Color color){
     this->borderColor = color;
 }
 
+/**
+ * @brief Trapezoid::setBorderWidth
+ * This method sets the value of the border width of the trapezoid
+ * @param width the value of the width to set
+ */
 void Trapezoid::setBorderWidth(size_t width){
     this->borderWidth = width;
 }

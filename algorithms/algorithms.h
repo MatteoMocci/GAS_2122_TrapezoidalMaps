@@ -18,7 +18,6 @@ namespace algorithms{
    size_t queryPoint(Dag dag, cg3::Point2d p);
    void splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D);
 
-
 }
 
 

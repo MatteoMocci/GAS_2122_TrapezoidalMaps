@@ -4,14 +4,18 @@
 #include <cg3/geometry/point2.h>
 #include <cg3/geometry/segment2.h>
 #include <cg3/utilities/color.h>
-#define BOUNDINGBOX 1e+6
+#define BOUNDINGBOX 1e+6 // the length of a side of the bounding box
 
 class Trapezoid
 {
 
 public:
+
+    //constructors
     Trapezoid() = default;
     Trapezoid(cg3::Point2d leftp, cg3::Point2d rightp, cg3::Segment2d top, cg3::Segment2d bottom);
+
+    //getters
     const cg3::Point2d getLeftp() const;
     const cg3::Point2d getRightp() const;
     const cg3::Segment2d getBottom() const;
@@ -20,6 +24,8 @@ public:
     const cg3::Color getBorderColor() const;
     size_t getBorderWidth() const;
     size_t getId() const;
+
+    //setters
     void setLeftp(cg3::Point2d leftp);
     void setRightp(cg3::Point2d rightp);
     void setBottom(cg3::Segment2d bottom);
@@ -28,19 +34,25 @@ public:
     void setId(size_t index);
     void setBorderColor(cg3::Color color);
     void setBorderWidth(size_t width);
+
+    //override of the == operator for trapezoids
     friend bool operator==(const Trapezoid&, const Trapezoid&);
+
+    //static members
     static int lastQueried;
     static cg3::Color lastColor;
 
 private:
-    cg3::Point2d leftp;
-    cg3::Point2d rightp;
-    cg3::Segment2d bottom;
-    cg3::Segment2d top;
-    cg3::Color color;
-    cg3::Color borderColor;
-    size_t borderWidth;
-    size_t trapIndex;
+
+    //attributes of a Trapezoid
+    cg3::Point2d leftp;     //the point to the left of the trapezoid
+    cg3::Point2d rightp;    //the point to the right of the trapezoid
+    cg3::Segment2d bottom;  //the segment below the trapezoid
+    cg3::Segment2d top;     //the segment above the trapezoid
+    cg3::Color color;       //the color for filling the trapezoid
+    cg3::Color borderColor; //the color of the border of the trapezoid
+    size_t borderWidth;     //the width of the border of the trapezoid
+    size_t trapIndex;       //the id of the trapezoid, the position in the trapezoidalmap
 
 
     /*
