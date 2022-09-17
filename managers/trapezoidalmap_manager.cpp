@@ -252,10 +252,23 @@ void TrapezoidalMapManager::queryTrapezoidalMap(const cg3::Point2d& queryPoint)
     //When you find the trapezoid in which the point is contained, you should highlight
     //the output trapezoid in the canvas (DrawableTrapezoidMap should implement the method
     //to do that).
+    if(Trapezoid::lastQueried != -1){
+        Trapezoid & old = drawableMap.getTrapezoid(Trapezoid::lastQueried);
+        old.setColor(Trapezoid::lastColor);
+        old.setBorderColor(cg3::Color(0,0,0));
+        old.setBorderWidth(2);
+    }
 
-    size_t query_index = algorithms::queryPoint(dag, queryPoint);
-    Trapezoid t = drawableMap.getMap()[query_index];
-    t.setColor(cg3::Color(250,218,221));
+    size_t query_node = algorithms::queryPoint(dag, queryPoint);
+    size_t query_index = dag.getElementInDVector(query_node).getEntityId();
+    Trapezoid & t = drawableMap.getTrapezoid(query_index);
+    Trapezoid::lastColor = t.getColor();
+    Trapezoid::lastQueried = query_index;
+    t.setColor(cg3::Color(255,0,0));
+    t.setBorderColor(cg3::Color(255,165,0));
+    t.setBorderWidth(5);
+
+
 
 
     //#####################################################################

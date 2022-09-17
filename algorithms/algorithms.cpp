@@ -32,7 +32,6 @@ DagNode algorithms::followSegment(std::vector<Trapezoid> T, Dag D, cg3::Segment2
 void algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t tleft, size_t tright, size_t ttop, size_t tbottom){
 
     //obtain the size of the vectors of dagNodes, points and segment
-    size_t dSize = D.getVectorSize(DAGNODE);
     size_t pSize = D.getVectorSize(POINT);
     size_t sSize = D.getVectorSize(SEGMENT);
 
@@ -40,13 +39,13 @@ void algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t tleft
     size_t p1_id, p2_id, s_id, a_id, b_id, c_id, d_id = SIZE_MAX;
 
     //Create point, segment and trapezoid node
-    DagNode p1 = DagNode(POINT,pSize);      //id = dSize
-    DagNode p2 = DagNode(POINT,pSize + 1);  //id = dSize + 1
-    DagNode sn = DagNode(SEGMENT, sSize);   //id = dSize + 2
-    DagNode a = DagNode(TRAPEZOID, tleft);  //id = dSize + 3
-    DagNode b = DagNode(TRAPEZOID, ttop);   //id = dSize + 4
-    DagNode c = DagNode(TRAPEZOID, tbottom);//id = dSize + 5
-    DagNode d = DagNode(TRAPEZOID, tright); //id = dSize + 6
+    DagNode p1 = DagNode(POINT,pSize);
+    DagNode p2 = DagNode(POINT,pSize + 1);
+    DagNode sn = DagNode(SEGMENT, sSize);
+    DagNode a = DagNode(TRAPEZOID, tleft);
+    DagNode b = DagNode(TRAPEZOID, ttop);
+    DagNode c = DagNode(TRAPEZOID, tbottom);
+    DagNode d = DagNode(TRAPEZOID, tright);
 
 
 
@@ -96,7 +95,7 @@ bool algorithms::isAbove(cg3::Segment2d s, cg3::Point2d p){
     double v1[] {s.p2().x() - s.p1().x(), s.p2().y() - s.p1().y()};
     double v2[] = {s.p2().x()-p.x(), s.p2().y() -p.y()};
     double xp = v1[0]*v2[1] - v1[1]*v2[0]; //prodotto scalare
-    if (xp > 0){
+    if (xp < 0){
         return true;
     }
     else{

@@ -5,14 +5,13 @@ DrawableTrapezoidalMap::DrawableTrapezoidalMap(){
 }
 
 void DrawableTrapezoidalMap::draw() const{
-    cg3::Color black = cg3::Color(0,0,0);
     for(const Trapezoid& t : getMap()){
         cg3::opengl::drawQuad2(t.getTop().p1(),t.getTop().p2(),t.getBottom().p2(),t.getBottom().p1(),
                                t.getColor(), 1, true);
-        cg3::opengl::drawLine2(t.getTop().p1(),t.getTop().p2(),black, 4);
-        cg3::opengl::drawLine2(t.getBottom().p1(),t.getBottom().p2(),black, 4);
-        cg3::opengl::drawLine2(t.getTop().p1(),t.getBottom().p1(),black, 4);
-        cg3::opengl::drawLine2(t.getTop().p2(),t.getBottom().p2(),black, 4);
+        cg3::opengl::drawLine2(t.getTop().p1(),t.getTop().p2(),t.getBorderColor(), t.getBorderWidth());
+        cg3::opengl::drawLine2(t.getBottom().p1(),t.getBottom().p2(),t.getBorderColor(), t.getBorderWidth());
+        cg3::opengl::drawLine2(t.getTop().p1(),t.getBottom().p1(),t.getBorderColor(), t.getBorderWidth());
+        cg3::opengl::drawLine2(t.getTop().p2(),t.getBottom().p2(),t.getBorderColor(), t.getBorderWidth());
     }
 }
 

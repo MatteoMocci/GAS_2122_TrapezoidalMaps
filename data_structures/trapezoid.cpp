@@ -1,4 +1,6 @@
 #include "trapezoid.h"
+int Trapezoid::lastQueried = -1;
+cg3::Color Trapezoid::lastColor = cg3::Color(0,0,0);
 /**
  * @brief Trapezoid::Trapezoid
  * This constructor initializes a trapezoid by initializing each of the four values with the values in input
@@ -8,7 +10,8 @@
  * @param bottom
  */
 Trapezoid::Trapezoid(cg3::Point2d leftp, cg3::Point2d rightp, cg3::Segment2d top, cg3::Segment2d bottom):
-    leftp(leftp), rightp(rightp), bottom(bottom), top(top), color(cg3::Color(rand()%256, rand()%256, rand()%256))
+    leftp(leftp), rightp(rightp), bottom(bottom), top(top), color(cg3::Color(rand()%256, rand()%256, rand()%256)),
+    borderColor(cg3::Color(0,0,0)), borderWidth(2)
 {
 
 }
@@ -34,6 +37,14 @@ const cg3::Color Trapezoid::getColor() const{
     return this->color;
 }
 
+const cg3::Color Trapezoid::getBorderColor() const{
+    return this->borderColor;
+}
+
+size_t Trapezoid::getBorderWidth() const{
+    return this->borderWidth;
+}
+
 size_t Trapezoid::getId() const{
     return this->trapIndex;
 }
@@ -57,4 +68,12 @@ void Trapezoid::setId(size_t index){
 
 void Trapezoid::setColor(cg3::Color color){
     this->color = color;
+}
+
+void Trapezoid::setBorderColor(cg3::Color color){
+    this->borderColor = color;
+}
+
+void Trapezoid::setBorderWidth(size_t width){
+    this->borderWidth = width;
 }
