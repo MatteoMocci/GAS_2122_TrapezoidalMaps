@@ -195,6 +195,7 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     //already in the structure. You could use the same approach for your trapezoidal map to make
     //it more efficient in memory. However, depending on how you implement your algorithms and data 
     //structures, you could save directly the point (Point2d) in each trapezoid (it is fine).
+    std::vector<Trapezoid> test = algorithms::followSegment(drawableMap,dag,segment);
     if(segment.p1() > segment.p2()){
         cg3::Segment2d orderedSegment = cg3::Segment2d(segment.p2(),segment.p1());
         algorithms::splitin4(drawableMap,orderedSegment,dag);

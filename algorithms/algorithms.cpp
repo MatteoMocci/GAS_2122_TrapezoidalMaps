@@ -16,16 +16,39 @@
  * 7.				else Δj+1 be the upper right neighbor of Δj
  * 8.			j ← j+1
  * 9.	return Δ0, Δ1, …, Δk
+ */
 
-DagNode algorithms::followSegment(std::vector<Trapezoid> T, Dag D, cg3::Segment2d s){
-    // Punto 1
-    cg3::Point2d p = s.p1();
-    cg3::Point2d q = s.p2();
+/**
+ * @brief algorithms::followSegment
+ * This algorithm, using the trapezoidal map T and the dag D, returns the vectir of trapezoids in T that are intersected by s
+ * @param T the trapezoidal map containing the segments
+ * @param D the Dag to query with the left endpoint of the segment
+ * @param s the segment that intersects the trapezoids
+ * @return the vector with all trapezoids intersected by the segment
+ */
+std::vector<Trapezoid> algorithms::followSegment(TrapezoidalMap T, Dag D, cg3::Segment2d s){
 
-    //Punto 2
-    //implementare la ricerca nel Dag passando come parametro il punto p
+    std::vector<Trapezoid> delta; //the vector that will contain the trapezoids intersected by the segment
+    cg3::Point2d p = s.p1(); //p is the left endpoint of the segment
+    cg3::Point2d q = s.p2(); //q is the right endpoint of the segment
+
+    size_t i0 = queryPoint(D, p);//query the dag with the left endpoint to find the first intersected trapezoid
+    delta.push_back(T.getTrapezoid(D.getElementInDVector(i0).getEntityId())); //add in the vector the first trapezoid found
+    size_t j = 0; //variable used in the while loop
+    while(q.x() > delta[j].getRightp().x()){//while the right endpoint lies to the right of rightp(Δj)
+        if(isAbove(s,delta[j].getRightp())){//if rightp(Δj) lies above si
+            delta.push_back(T.getTrapezoid(delta[j].getNeighbor(BOTTOM_RIGHT)));
+            //then Δj+1 be the lower right neighbor of Δj
+        }
+        else{
+            delta.push_back(T.getTrapezoid(delta[j].getNeighbor(TOP_RIGHT)));
+            //else Δj+1 be the upper right neighbor of Δj
+        }
+        j++;//update the loop variable
+    }
+    return delta;//return the vector with the trapezoid
 }
-*/
+
 /**
  * @brief algorithms::updateDag
  * This method updates the Dag after the segment insertion, when a split in 4 occurs.
