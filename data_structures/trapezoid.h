@@ -24,6 +24,8 @@ public:
     const cg3::Color getBorderColor() const;
     size_t getBorderWidth() const;
     size_t getId() const;
+    size_t getNeighbor(size_t index);
+    size_t* getNeighbors();
 
     //setters
     void setLeftp(cg3::Point2d leftp);
@@ -34,6 +36,8 @@ public:
     void setId(size_t index);
     void setBorderColor(cg3::Color color);
     void setBorderWidth(size_t width);
+    void setEmptyNeighbors();
+    void setNeighbor(size_t index, size_t rep);
 
     //override of the == operator for trapezoids
     friend bool operator==(const Trapezoid&, const Trapezoid&);
@@ -53,14 +57,7 @@ private:
     cg3::Color borderColor; //the color of the border of the trapezoid
     size_t borderWidth;     //the width of the border of the trapezoid
     size_t trapIndex;       //the id of the trapezoid, the position in the trapezoidalmap
-
-
-    /*
-    size_t topleftnIndex;
-    size_t toprightnIndex;
-    size_t bottomleftnIndex;
-    size_t bottomrightnIndex;
-    */
+    size_t neighbors[4];     //the array of the index of neighbors of a trapezoid
 };
 
 #endif // TRAPEZOID_H

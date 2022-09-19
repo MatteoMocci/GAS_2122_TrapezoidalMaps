@@ -1,4 +1,8 @@
 #include "trapezoidalmap.h"
+#define TOP_LEFT 0
+#define TOP_RIGHT 1
+#define BOTTOM_LEFT 2
+#define BOTTOM_RIGHT 3
 
 /**
  * @brief TrapezoidalMap::TrapezoidalMap
@@ -68,6 +72,10 @@ Trapezoid& TrapezoidalMap::getTrapezoid(size_t index){
     return t_map[index];
 }
 
+size_t TrapezoidalMap::getTsize() const{
+    return t_map.size();
+}
+
 /**
  * @brief TrapezoidalMap::clearTmap
  * This method clears the trapezoidal map. It is called when the "clear" button is pressed in the interface.
@@ -79,3 +87,41 @@ void TrapezoidalMap::clearTmap(){
     insertBoundingBoxT(); //insert the trapezoid of the bounding box in the trapezoidal map
 }
 
+/**
+ * @brief TrapezoidalMap::getNeighbor
+ * This method returns for the trapezoid trap the id of the neighbor in the position indicated by the parameter index.
+ * 0 = TOP_LEFT, 1 = TOP_RIGHT, 2 = BOTTOM_LEFT, 3 = BOTTOM_RIGHT
+ * @param trap the id of the trapezoid of which return the neighbor
+ * @param index the position of the neighbor id to return
+ * @return the id of the trapezoid that is the neighbor in that position
+ */
+size_t TrapezoidalMap::getNeighbor(size_t trap, size_t index){
+    return t_map[trap].getNeighbor(index);
+}
+
+
+/**
+ * @brief TrapezoidalMap::setNeighbor
+ * This method replaces the value for the trapezoid of id trap of the neighbors array
+ * in the position index with the value rep passed as parameter
+ * @param index the position of the neighbor array in which replace the value
+ * @param rep the new value for that position
+ */
+void TrapezoidalMap::setNeighbor(size_t trap, size_t index, size_t rep){
+    t_map[trap].setNeighbor(index,rep);
+}
+
+/**
+ * @brief TrapezoidalMap::getAllTasNeighbor
+ * For all trapezoids in t_map, if the neighbor in the index position, is old_trap, then new_trap is replaced as neighbor for that position
+ * @param position the position to check if the trapezoid is neighbor
+ * @param old_trap the id of the trapezoid to check if it is neighbor of all trapezoids
+ * @param new_trap the id to replace when old_trap is found
+ */
+void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t new_trap){
+    for(size_t i = 0; i < t_map.size(); i++){
+        if (old_trap == t_map[i].getNeighbor(position)){
+            t_map[i].setNeighbor(position,new_trap);
+        }
+    }
+}

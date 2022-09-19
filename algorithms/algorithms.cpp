@@ -1,4 +1,8 @@
 #include "algorithms.h"
+#define TOP_LEFT 0
+#define TOP_RIGHT 1
+#define BOTTOM_LEFT 2
+#define BOTTOM_RIGHT 3
 
 /*
  * Input. 	A trapezoidal map T, a search structure D for T, and a new segment si
@@ -194,10 +198,11 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D){
     cg3::Segment2d proj2 = cg3::Segment2d(cg3::Point2d(s.p2().x(),BOUNDINGBOX),
                                           cg3::Point2d(s.p2().x(), -BOUNDINGBOX));
 
-
+    size_t left_id, right_id, top_id, bottom_id; //the id of the 4 trapezoids
+    size_t * old_neighbors = t_split.getNeighbors();
 
     cg3::Point2d p1t, p1b, p2t, p2b;
-    //the four point of intersections: the intersection with top and bottom of the two projection segments
+    //the four points of intersections: the intersection with top and bottom of the two projection segments
 
     //calculate the intersections
     cg3::checkSegmentIntersection2(t_split.getTop(),proj1,dummy,0,p1t);
@@ -238,12 +243,47 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D){
                 cg3::Segment2d(p2b,t_split.getBottom().p2())
                 );
 
+    left_id = trap_id;
     T.replaceTrapezoid(trap_id,tleft);//replace the old trapezoid in the trapezoidal map with tleft
-    //insert the other trapezoids in the trapezoidal map
-    T.insertTrapezoid(ttop);
-    T.insertTrapezoid(tbottom);
-    T.insertTrapezoid(tright);
 
-    updateDag(D,s,dag_id,tleft.getId(),tright.getId(),ttop.getId(),tbottom.getId()); //update the Dag
+    //insert the other trapezoids in the trapezoidal map
+    top_id = T.insertTrapezoid(ttop);
+    bottom_id = T.insertTrapezoid(tbottom);
+    right_id = T.insertTrapezoid(tright);
+
+    //all trapezoids that had tsplit as lower/upper left neighbor now have tright
+    if(T.getTsize() > 4){
+        T.replaceAllPositionNeighbor(TOP_LEFT,trap_id,right_id);
+        T.replaceAllPositionNeighbor(BOTTOM_LEFT,trap_id,right_id);
+    }
+
+    //set neighbors of left trapezoid;
+    T.setNeighbor(left_id,TOP_LEFT,old_neighbors[TOP_LEFT]);
+    T.setNeighbor(left_id, TOP_RIGHT, top_id);      //the top right neighbor is the trapezoid above the segment
+    T.setNeighbor(left_id,BOTTOM_LEFT,old_neighbors[BOTTOM_LEFT]);
+    T.setNeighbor(left_id,BOTTOM_RIGHT,bottom_id);  //the bottom right neighbor is the trapezoid below the segment
+    //top-left and bottom-left are the same of the old trapezoid
+
+    //set neighbors of right trapezoid;
+    T.setNeighbor(right_id, TOP_LEFT, top_id);      //the top right neighbor is the trapezoid above the segment
+    T.setNeighbor(right_id,TOP_RIGHT,old_neighbors[TOP_RIGHT]);
+    T.setNeighbor(right_id,BOTTOM_LEFT,bottom_id);  //the bottom right neighbor is the trapezoid below the segment
+    T.setNeighbor(right_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+    //top-right and bottom-right are the same of the old trapezoid
+
+    //set neighbors of top trapezoid
+    T.setNeighbor(top_id,TOP_LEFT,left_id);         //the top left neighbor is the trapezoid to the left of the segment
+    T.setNeighbor(top_id,TOP_RIGHT,right_id);       //the top right neighbor is the trapezoid to the right of the segment
+    T.setNeighbor(top_id,BOTTOM_LEFT,left_id);      //the bottom left neighbor is the trapezoid to the left of the segment
+    T.setNeighbor(top_id,BOTTOM_RIGHT,right_id);    //the bottom right neighbor is the trapezoid to the right of the segment
+
+    //set neighbors of bottom trapezoid
+    T.setNeighbor(bottom_id,TOP_LEFT,left_id);      //the top left neighbor is the trapezoid to the left of the segment
+    T.setNeighbor(bottom_id,TOP_RIGHT,right_id);    //the top right neighbor is the trapezoid to the right of the segment
+    T.setNeighbor(bottom_id,BOTTOM_LEFT,left_id);   //the bottom left neighbor is the trapezoid to the left of the segment
+    T.setNeighbor(bottom_id,BOTTOM_RIGHT,right_id); //the bottom right neighbor is the trapezoid to the right of the segment
+
+
+    updateDag(D,s,dag_id,left_id,right_id,top_id,bottom_id); //update the Dag
 }
 

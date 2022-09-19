@@ -3,7 +3,8 @@ int Trapezoid::lastQueried = -1;
 cg3::Color Trapezoid::lastColor = cg3::Color(0,0,0);
 /**
  * @brief Trapezoid::Trapezoid
- * This constructor initializes a trapezoid by initializing each of the four values with the values in input
+ * This constructor initializes a trapezoid by initializing each of the four attributes with the values in input.
+ * The neighbor array is initialized as well.
  * @param leftp the point to the left of the trapezoid
  * @param rightp the point to the right of the trapezoid
  * @param top the segment above the trapezoid
@@ -13,7 +14,7 @@ Trapezoid::Trapezoid(cg3::Point2d leftp, cg3::Point2d rightp, cg3::Segment2d top
     leftp(leftp), rightp(rightp), bottom(bottom), top(top), color(cg3::Color(rand()%256, rand()%256, rand()%256)),
     borderColor(cg3::Color(0,0,0)), borderWidth(2)
 {
-
+    setEmptyNeighbors();
 }
 
 /**
@@ -160,4 +161,44 @@ void Trapezoid::setBorderColor(cg3::Color color){
  */
 void Trapezoid::setBorderWidth(size_t width){
     this->borderWidth = width;
+}
+
+/**
+ * @brief Trapezoid::setEmptyNeighbors
+ * This method initializes every element of the neighbor array with a placeholder value (SIZE_MAX)
+ * that indicates that the trapezoid doesn't have a neighbor for that position
+ */
+void Trapezoid::setEmptyNeighbors(){
+    for(size_t i = 0; i <= 3; i++){
+        neighbors[i] = SIZE_MAX;
+    }
+}
+
+/**
+ * @brief Trapezoid::getNeighbor
+ * This method returns the id of the neighbor in the position indicated by the parameter index.
+ * 0 = TOP_LEFT, 1 = TOP_RIGHT, 2 = BOTTOM_LEFT, 3 = BOTTOM_RIGHT
+ * @param index the position of the neighbor id to return
+ * @return the id of the trapezoid that is the neighbor in that position
+ */
+size_t Trapezoid::getNeighbor(size_t index){
+    return neighbors[index];
+}
+
+/**
+ * @brief Trapezoid::getNeighbors
+ * @return the vector of neighbors of the current trapezoid
+ */
+size_t* Trapezoid::getNeighbors(){
+    return neighbors;
+}
+
+/**
+ * @brief Trapezoid::setNeighbor
+ * This method replaces the value in the position index with the value rep passed as parameter
+ * @param index the position of the neighbor array in which replace the value
+ * @param rep the new value for that position
+ */
+void Trapezoid::setNeighbor(size_t index, size_t rep){
+    neighbors[index] = rep;
 }
