@@ -105,6 +105,45 @@ void algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t tleft
     D.insertInVector(s);
 
 }
+/*
+void algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom, size_t tother, bool left){
+    //obtain the size of the vectors of dagNodes, points and segment
+    size_t pSize = D.getVectorSize(POINT);
+    size_t sSize = D.getVectorSize(SEGMENT);
+    size_t segmentPosition = D.findSegment(s);
+
+    //create id of dag nodes
+    size_t p_id, s_id, a_id, b_id, c_id = SIZE_MAX;
+
+    //Create point, segment and trapezoid node
+    DagNode p = DagNode(POINT,pSize);
+    DagNode sn = DagNode(SEGMENT, sSize);
+    DagNode a = DagNode(TRAPEZOID, ttop);
+    DagNode b = DagNode(TRAPEZOID, tbottom);
+    DagNode c = DagNode(TRAPEZOID, tother);
+
+    //push the nodes in the dag vector
+    p_id = D.replaceNode(tsplit,p);
+    s_id = D.insertInVector(sn);
+    a_id = D.insertInVector(a);
+    b_id = D.insertInVector(b);
+    c_id = D.insertInVector(c);
+
+    //set left and right children
+    D.getElementInDVector(p_id).setLeftc(a_id);
+    D.getElementInDVector(p1_id).setRightc(p2_id);
+    D.getElementInDVector(p2_id).setLeftc(s_id);
+    D.getElementInDVector(p2_id).setRightc(d_id);
+    D.getElementInDVector(s_id).setLeftc(b_id);
+    D.getElementInDVector(s_id).setRightc(c_id);
+
+    //push the points and the segment in the respective vector
+    D.insertInVector(s.p1());
+    D.insertInVector(s.p2());
+    D.insertInVector(s);
+
+}
+*/
 /**
  * @brief algorithms::getIndex
  * This method returns the index in which an element of type T inside a vector of type T
@@ -198,6 +237,270 @@ size_t algorithms::queryPoint(Dag dag, cg3::Point2d p){
    }
 }
 
+void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, Trapezoid t_split, bool& merge_above, Trapezoid& t_merge){
+    char dummy;
+    Trapezoid ttop, tbottom;
+    size_t merge_id, trap_id, dag_id;
+    trap_id = t_split.getId();
+    dag_id = D.find(trap_id);
+    cg3::Segment2d proj1, proj2, internal;
+    cg3::Point2d p1, p2;
+    proj1 =  cg3::Segment2d(cg3::Point2d(t_split.getLeftp().x(),BOUNDINGBOX),
+                               cg3::Point2d(t_split.getLeftp().x(), -BOUNDINGBOX));
+    proj2 =  cg3::Segment2d(cg3::Point2d(t_split.getRightp().x(),BOUNDINGBOX),
+                                cg3::Point2d(t_split.getRightp().x(), -BOUNDINGBOX));
+
+    cg3::checkSegmentIntersection2(s,proj1,dummy,0,p1);
+    cg3::checkSegmentIntersection2(s,proj2,dummy,0,p2);
+    internal = cg3::Segment2d(p1,p2);
+
+    size_t other_id, top_id, bottom_id;
+    size_t * old_neighbors = t_split.getNeighbors();
+
+    cg3::Point2d p1t, p1b, p2t, p2b;
+    //the four points of intersections: the intersection with top and bottom of the two projection segments
+
+    //calculate the intersectionss
+    cg3::checkSegmentIntersection2(t_split.getTop(),proj1,dummy,0,p1t);
+    cg3::checkSegmentIntersection2(t_split.getBottom(),proj1,dummy,0,p1b);
+    cg3::checkSegmentIntersection2(t_split.getTop(),proj2,dummy,0,p2t);
+    cg3::checkSegmentIntersection2(t_split.getBottom(),proj2,dummy,0,p2b);
+
+    //create the trapezoid above
+    ttop = Trapezoid(
+                p1,
+                p2,
+                t_split.getTop(),
+                internal
+                );
+
+    //create the trapezoid below
+    tbottom = Trapezoid(
+                t_split.getLeftp(),
+                t_split.getRightp(),
+                internal,
+                t_split.getBottom()
+                );
+
+    if(merge_above){
+        ttop.setLeftp(t_merge.getLeftp());
+        ttop.setTop(cg3::Segment2d(t_merge.getTop().p1(),ttop.getTop().p2()));
+        ttop.setBottom(cg3::Segment2d(t_merge.getBottom().p1(),ttop.getBottom().p2()));
+
+    }
+    else{
+        tbottom.setLeftp(t_merge.getLeftp());
+        tbottom.setTop(cg3::Segment2d(t_merge.getTop().p1(),tbottom.getTop().p2()));
+        tbottom.setBottom(cg3::Segment2d(t_merge.getBottom().p1(),tbottom.getBottom().p2()));
+    }
+
+    if(merge_above && isAbove(s,t_split.getRightp())){
+        top_id = T.insertTrapezoid(ttop);
+        t_merge = tbottom;
+        merge_above = false;
+    }
+    else if(!merge_above && !isAbove(s,t_split.getRightp()))
+    {
+        bottom_id = T.insertTrapezoid(tbottom);
+        t_merge = ttop;
+        merge_above = true;
+    }
+    else{
+        if(merge_above){
+            t_merge = ttop;
+            bottom_id = trap_id;
+            T.replaceTrapezoid(trap_id,tbottom);
+        }
+        else{
+            t_merge = tbottom;
+            top_id = trap_id;
+            T.replaceTrapezoid(trap_id,ttop);
+        }
+    }
+}
+
+
+/**
+ * @brief algorithms::splitin3
+ * This method performs a split in 3. The intersecting face t_split is removed from the trapezoidal map and the 3 new trapezoid
+ * generated are inserted. The boolean parameter left determines if one of the trapezoid is to the left (true) or to the right (false).
+ * Then the updateDag() method is called in order to reflect the changes in the trapezoidal map in the DAG as well.
+ * @param T The trapezoidal map containing the trapezoids
+ * @param s The segment that caused the split in 3
+ * @param D The dag to use a search structure
+ * @param t_split the trapezoid to delete
+ * @param left This parameter determines if the split occurs in the left or in the right endpoint of the segment, for which
+ * the split in 3 is different
+ */
+void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, Trapezoid t_split, bool left, bool& merge_above, Trapezoid& t_merge){
+
+    char dummy;
+    Trapezoid tother, ttop, tbottom;
+    size_t trap_id = t_split.getId();
+    size_t dag_id = D.find(trap_id);
+    cg3::Segment2d proj1, proj2;
+    cg3::Point2d cross;
+
+    //these 2 segments represent the projection on the x axis of the 2 endpoints of the segment
+    if(left){
+    proj1 = cg3::Segment2d(cg3::Point2d(s.p1().x(),BOUNDINGBOX), cg3::Point2d(s.p1().x(), -BOUNDINGBOX));
+    proj2 = cg3::Segment2d(cg3::Point2d(t_split.getRightp().x(),BOUNDINGBOX),
+                           cg3::Point2d(t_split.getRightp().x(), -BOUNDINGBOX));
+    cg3::checkSegmentIntersection2(s,proj2,dummy,0,cross);
+    }
+    else{
+        proj1 = cg3::Segment2d(cg3::Point2d(t_split.getLeftp().x(),BOUNDINGBOX),
+                               cg3::Point2d(t_split.getLeftp().x(), -BOUNDINGBOX));
+        proj2 = cg3::Segment2d(cg3::Point2d(s.p2().x(),BOUNDINGBOX), cg3::Point2d(s.p2().x(), -BOUNDINGBOX));
+        cg3::checkSegmentIntersection2(s,proj1,dummy,0,cross);
+    }
+
+    size_t other_id, top_id, bottom_id;
+    size_t * old_neighbors = t_split.getNeighbors();
+
+    cg3::Point2d p1t, p1b, p2t, p2b;
+    //the four points of intersections: the intersection with top and bottom of the two projection segments
+
+    //calculate the intersections
+    cg3::checkSegmentIntersection2(t_split.getTop(),proj1,dummy,0,p1t);
+    cg3::checkSegmentIntersection2(t_split.getBottom(),proj1,dummy,0,p1b);
+    cg3::checkSegmentIntersection2(t_split.getTop(),proj2,dummy,0,p2t);
+    cg3::checkSegmentIntersection2(t_split.getBottom(),proj2,dummy,0,p2b);
+
+
+
+    //create the trapezoid above
+    if(left){
+    ttop = Trapezoid(
+                s.p1(),
+                cross,
+                cg3::Segment2d(p1t,t_split.getTop().p2()),
+                cg3::Segment2d(s.p1(),cross)
+                );
+
+    //create the trapezoid below
+    tbottom = Trapezoid(
+                p1b,
+                p2b,
+                cg3::Segment2d(s.p1(),cross),
+                cg3::Segment2d(p1b,t_split.getBottom().p2())
+                );
+    }
+    else{
+        ttop = Trapezoid(
+                    cross,
+                    s.p2(),
+                    cg3::Segment2d(t_split.getTop().p1(),p2t),
+                    cg3::Segment2d(cross,s.p2()));
+        tbottom = Trapezoid(
+                    p1b,
+                    p2b,
+                    cg3::Segment2d(cross,s.p2()),
+                    cg3::Segment2d(t_split.getBottom().p1(),p2b)
+                    );
+    }
+
+    //create the other trapezoid of the split (left or right depending by the endpoint)
+    if(left){
+        tother = Trapezoid(
+                    t_split.getLeftp(),
+                    s.p1(),
+                    cg3::Segment2d(t_split.getTop().p1(),p1t),
+                    cg3::Segment2d(t_split.getBottom().p1(),p1b)
+                    );
+    }
+    else{
+        tother = Trapezoid(
+                    s.p2(),
+                    t_split.getRightp(),
+                    cg3::Segment2d(p2t,t_split.getTop().p2()),
+                    cg3::Segment2d(p2b,t_split.getBottom().p2())
+                    );
+    }
+
+    if(merge_above){
+        ttop.setLeftp(t_merge.getLeftp());
+        ttop.setTop(cg3::Segment2d(t_merge.getTop().p1(),ttop.getTop().p2()));
+        ttop.setBottom(cg3::Segment2d(t_merge.getBottom().p1(),ttop.getBottom().p2()));
+
+    }
+    else{
+        if(!left){
+            tbottom.setLeftp(t_merge.getLeftp());
+            tbottom.setTop(cg3::Segment2d(t_merge.getTop().p1(),tbottom.getTop().p2()));
+            tbottom.setBottom(cg3::Segment2d(t_merge.getBottom().p1(),tbottom.getBottom().p2()));
+        }
+   }
+
+    if(left){
+        other_id = trap_id;
+        T.replaceTrapezoid(trap_id,tother);
+
+        if(isAbove(s,t_split.getRightp())){
+            t_merge = tbottom;
+            top_id = T.insertTrapezoid(ttop);
+            merge_above = false;
+        }
+        else{
+            t_merge = ttop;
+            bottom_id = T.insertTrapezoid(tbottom);
+            merge_above = true;
+        }
+
+    }
+    else{
+        top_id = trap_id;
+
+        if(merge_above){
+            T.replaceTrapezoid(trap_id,ttop);
+            bottom_id = T.insertTrapezoid(tbottom);
+            other_id = T.insertTrapezoid(tother);
+        }
+        else{
+            T.replaceTrapezoid(trap_id,ttop);
+            bottom_id = T.insertTrapezoid(tbottom);
+            other_id = T.insertTrapezoid(tother);
+        }
+    }
+
+    /*
+    //all trapezoids that had tsplit as lower/upper left neighbor now have tright
+    if(T.getTsize() > 4){
+        T.replaceAllPositionNeighbor(TOP_LEFT,trap_id,right_id);
+        T.replaceAllPositionNeighbor(BOTTOM_LEFT,trap_id,right_id);
+    }
+
+    //set neighbors of left trapezoid;
+    T.setNeighbor(left_id,TOP_LEFT,old_neighbors[TOP_LEFT]);
+    T.setNeighbor(left_id, TOP_RIGHT, top_id);      //the top right neighbor is the trapezoid above the segment
+    T.setNeighbor(left_id,BOTTOM_LEFT,old_neighbors[BOTTOM_LEFT]);
+    T.setNeighbor(left_id,BOTTOM_RIGHT,bottom_id);  //the bottom right neighbor is the trapezoid below the segment
+    //top-left and bottom-left are the same of the old trapezoid
+
+    //set neighbors of right trapezoid;
+    T.setNeighbor(right_id, TOP_LEFT, top_id);      //the top right neighbor is the trapezoid above the segment
+    T.setNeighbor(right_id,TOP_RIGHT,old_neighbors[TOP_RIGHT]);
+    T.setNeighbor(right_id,BOTTOM_LEFT,bottom_id);  //the bottom right neighbor is the trapezoid below the segment
+    T.setNeighbor(right_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+    //top-right and bottom-right are the same of the old trapezoid
+
+    //set neighbors of top trapezoid
+    T.setNeighbor(top_id,TOP_LEFT,left_id);         //the top left neighbor is the trapezoid to the left of the segment
+    T.setNeighbor(top_id,TOP_RIGHT,right_id);       //the top right neighbor is the trapezoid to the right of the segment
+    T.setNeighbor(top_id,BOTTOM_LEFT,left_id);      //the bottom left neighbor is the trapezoid to the left of the segment
+    T.setNeighbor(top_id,BOTTOM_RIGHT,right_id);    //the bottom right neighbor is the trapezoid to the right of the segment
+
+    //set neighbors of bottom trapezoid
+    T.setNeighbor(bottom_id,TOP_LEFT,left_id);      //the top left neighbor is the trapezoid to the left of the segment
+    T.setNeighbor(bottom_id,TOP_RIGHT,right_id);    //the top right neighbor is the trapezoid to the right of the segment
+    T.setNeighbor(bottom_id,BOTTOM_LEFT,left_id);   //the bottom left neighbor is the trapezoid to the left of the segment
+    T.setNeighbor(bottom_id,BOTTOM_RIGHT,right_id); //the bottom right neighbor is the trapezoid to the right of the segment
+
+
+    updateDag(D,s,dag_id,left_id,right_id,top_id,bottom_id); //update the Dag
+    */
+}
+
 /**
  * @brief algorithms::splitin4
  * This method performs a split in 4. The intersecting face is removed from the trapezoidal map and the
@@ -207,13 +510,11 @@ size_t algorithms::queryPoint(Dag dag, cg3::Point2d p){
  * @param s a reference to the segment that caused the split in 4
  * @param D a refernece to the Dag
  */
-void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D){
+void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, Trapezoid t_split){
     char dummy;
-    size_t dag_id = queryPoint(D,s.p1());
-    //retrieve the id of the dag node representing the trapezoid containing the point
-    size_t trap_id = D.getElementInDVector(dag_id).getEntityId();
-    //retrieve the id of the trapezoid
-    Trapezoid t_split = T.getTrapezoid(trap_id); //retrieve the trapezoid
+    size_t trap_id = t_split.getId();
+    size_t dag_id = D.find(trap_id);
+
 
     //these 2 segments represent the projection on the x axis of the 2 endpoints of the segment
     cg3::Segment2d proj1 = cg3::Segment2d(cg3::Point2d(s.p1().x(),BOUNDINGBOX),
@@ -308,5 +609,31 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D){
 
 
     updateDag(D,s,dag_id,left_id,right_id,top_id,bottom_id); //update the Dag
+}
+
+/**
+ * @brief algorithms::multipleSplit
+ * This method performs a multiple split when a segment intersects more than a trapezoid.
+ * @param T the trapezoidal map containing the trapezoids
+ * @param s the segment inserted
+ * @param D the dag to use as a search structure
+ * @param delta the list of trapezoids intersected by the segment s
+ */
+void algorithms::multipleSplit(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, std::vector<Trapezoid> delta){
+    bool merge_above;
+    Trapezoid t_merge;
+    for(size_t i = 0; i < delta.size(); i++){
+        if(i == 0){
+            splitin3(T,s,D,delta[0],true,merge_above,t_merge);
+        }
+        else if(i == delta.size() - 1){
+            splitin3(T,s,D,delta[delta.size()-1],false,merge_above,t_merge);
+        }
+        else{
+            splitin2(T,s,D,delta[i],merge_above,t_merge);
+        }
+    }
+
+
 }
 

@@ -15,8 +15,13 @@ namespace algorithms{
    size_t getIndex(std::vector<T> v, T K);
 
    void updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t tleft, size_t tright, size_t ttop, size_t tbottom);
+   void updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom, size_t tother, bool left);
    size_t queryPoint(Dag dag, cg3::Point2d p);
-   void splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D);
+   void splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, Trapezoid t_split, bool& merge_above, Trapezoid& t_merge);
+   void splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, Trapezoid t_split, bool left, bool& merge_above, Trapezoid& t_merge);
+   void splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, Trapezoid t_split);
+   void multipleSplit(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, std::vector<Trapezoid> delta);
+
 
 
 }

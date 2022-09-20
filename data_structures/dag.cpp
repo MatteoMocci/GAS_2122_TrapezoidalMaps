@@ -184,3 +184,27 @@ void Dag::clearDag(){
     sVector.clear(); //remove all elements from segment vector
     insertBoundingBoxD();
 }
+
+/**
+ * @brief Dag::find
+ * This method returns the position of the node in the dag with the entityid equal to the parameter
+ * @param entityid the id of the entity of which to find the node
+ * @return the position in which the node is in the vector of dagNodes
+ */
+size_t Dag::find(size_t entityid){
+    for (size_t i = 0; i < dVector.size(); i++){
+        if (dVector[i].getEntityId() == entityid){
+            return i;
+        }
+    }
+    return SIZE_MAX;
+}
+
+bool Dag::findSegment(cg3::Segment2d s){
+    for (size_t i = 0; i < sVector.size(); i++){
+        if(sVector[i] == s){
+            return true;
+        }
+    }
+    return false;
+}
