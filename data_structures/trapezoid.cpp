@@ -92,6 +92,13 @@ size_t Trapezoid::getId() const{
 }
 
 /**
+ * @brief Trapezoid::getDagId
+ * @return the position in the dag in which the trapezoid is stored
+ */
+size_t Trapezoid::getDagId() const{
+    return this->dagIndex;
+}
+/**
  * @brief Trapezoid::setLeftp
  * This method sets the value of the left point member of the trapezoid
  * @param leftp the point to set as left
@@ -174,6 +181,7 @@ void Trapezoid::setEmptyNeighbors(){
     }
 }
 
+
 /**
  * @brief Trapezoid::getNeighbor
  * This method returns the id of the neighbor in the position indicated by the parameter index.
@@ -201,4 +209,13 @@ size_t* Trapezoid::getNeighbors(){
  */
 void Trapezoid::setNeighbor(size_t index, size_t rep){
     neighbors[index] = rep;
+}
+
+/**
+ * @brief Trapezoid::setDagId
+ * This method sets the attribute that represent the position in the dag in which the trapezoid is stored
+ * @param index the position in which the trapezoid is stored in the dagNode vector
+ */
+void Trapezoid::setDagId(size_t index){
+    dagIndex = index;
 }

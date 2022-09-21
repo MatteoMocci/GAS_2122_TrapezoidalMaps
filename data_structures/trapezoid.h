@@ -26,6 +26,7 @@ public:
     size_t getId() const;
     size_t getNeighbor(size_t index);
     size_t* getNeighbors();
+    size_t getDagId() const;
 
     //setters
     void setLeftp(cg3::Point2d leftp);
@@ -38,6 +39,8 @@ public:
     void setBorderWidth(size_t width);
     void setEmptyNeighbors();
     void setNeighbor(size_t index, size_t rep);
+    void setDagId(size_t index);
+
 
     //override of the == operator for trapezoids
     friend bool operator==(const Trapezoid&, const Trapezoid&);
@@ -58,6 +61,7 @@ private:
     size_t borderWidth;     //the width of the border of the trapezoid
     size_t trapIndex;       //the id of the trapezoid, the position in the trapezoidalmap
     size_t neighbors[4];     //the array of the index of neighbors of a trapezoid
+    size_t dagIndex;        //the position in which the element is stored in the dag
 };
 
 #endif // TRAPEZOID_H

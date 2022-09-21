@@ -200,11 +200,25 @@ size_t Dag::find(size_t entityid){
     return SIZE_MAX;
 }
 
-bool Dag::findSegment(cg3::Segment2d s){
+void Dag::findSegment(cg3::Segment2d s, bool& found, size_t& index){
     for (size_t i = 0; i < sVector.size(); i++){
         if(sVector[i] == s){
-            return true;
+            index = i;
+            found = true;
+            return;
         }
     }
-    return false;
+    found = false;
+}
+
+
+void Dag::findPoint(cg3::Point2d p, bool& found, size_t& index){
+    for (size_t i = 0; i < sVector.size(); i++){
+        if(pVector[i] == p){
+            index = i;
+            found = true;
+            return;
+        }
+    }
+    found = false;
 }

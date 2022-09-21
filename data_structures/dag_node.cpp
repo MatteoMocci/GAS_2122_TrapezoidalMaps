@@ -7,7 +7,7 @@
  * @param id   The position of the dag node in the dag vector
  */
 DagNode::DagNode(nodeType type, size_t id):
-    entity_id(id), type(type)
+    leftc(SIZE_MAX), rightc(SIZE_MAX), entity_id(id), type(type)
 {
 }
 

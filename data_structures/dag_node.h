@@ -13,6 +13,7 @@ enum nodeType {POINT,SEGMENT,TRAPEZOID,DAGNODE};
 class DagNode{
     public:
         //constructors
+        DagNode() = default;
         DagNode(nodeType type, size_t id);
 
         //getters

@@ -26,6 +26,7 @@ void TrapezoidalMap::insertBoundingBoxT(){
                   );
     t.setId(0); //the bounding box is the first trapezoid to be inserted, thus it occupies the position 0
     t.setColor(cg3::Color(144,238,144)); //the color of the bounding box is light green
+    t.setDagId(0);
     t_map.push_back(t); //the trapezoid is inserted at the end of the vector
 }
 
@@ -124,4 +125,8 @@ void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap
             t_map[i].setNeighbor(position,new_trap);
         }
     }
+}
+
+void TrapezoidalMap::setDagId(size_t trap_id, size_t dag_id){
+    t_map[trap_id].setDagId(dag_id);
 }

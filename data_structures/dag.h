@@ -28,7 +28,8 @@ class Dag
         void clearDag();
         void insertBoundingBoxD();
         size_t find(size_t entityid);
-        bool findSegment(cg3::Segment2d s);
+        void findSegment(cg3::Segment2d s, bool& found, size_t& index);
+        void findPoint(cg3::Point2d p, bool& found, size_t& index);
 
 
     private:

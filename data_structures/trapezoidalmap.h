@@ -19,12 +19,14 @@ class TrapezoidalMap
         Trapezoid& getTrapezoid(size_t index);
         void clearTmap();
         void insertBoundingBoxT();
+        void setDagId(size_t trap_id, size_t dag_id);
 
         //methods to access to the neighbors of a trapezoid
         size_t getNeighbor(size_t trap, size_t index);
         void setNeighbor(size_t trap, size_t index, size_t rep);
         std::vector<size_t> getAllTasNeighbor(size_t position, size_t trap);
         void replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t new_trap);
+
 
 
     private:
