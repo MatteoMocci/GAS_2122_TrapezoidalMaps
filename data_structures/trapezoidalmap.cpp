@@ -112,6 +112,7 @@ void TrapezoidalMap::setNeighbor(size_t trap, size_t index, size_t rep){
     t_map[trap].setNeighbor(index,rep);
 }
 
+
 /**
  * @brief TrapezoidalMap::getAllTasNeighbor
  * For all trapezoids in t_map, if the neighbor in the index position, is old_trap, then new_trap is replaced as neighbor for that position
@@ -121,8 +122,60 @@ void TrapezoidalMap::setNeighbor(size_t trap, size_t index, size_t rep){
  */
 void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t new_trap){
     for(size_t i = 0; i < t_map.size(); i++){
-        if (old_trap == t_map[i].getNeighbor(position)){
+        if (old_trap == t_map[i].getNeighbor(position) && i != new_trap){
             t_map[i].setNeighbor(position,new_trap);
+        }
+    }
+}
+
+/**
+ * @brief TrapezoidalMap::getAllTasNeighbor
+ * For all trapezoids in t_map, if the neighbor in the index position, is old_trap, then new_trap is replaced as neighbor for that position
+ * @param position the position to check if the trapezoid is neighbor
+ * @param old_trap the id of the trapezoid to check if it is neighbor of all trapezoids
+ * @param new_trap the id to replace when old_trap is found
+ */
+void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t new_trap, size_t next){
+    for(size_t i = 0; i < t_map.size(); i++){
+        if (i!= next && old_trap == t_map[i].getNeighbor(position) && i != new_trap){
+            t_map[i].setNeighbor(position,new_trap);
+        }
+    }
+}
+
+/**
+ * @brief TrapezoidalMap::getAllTasNeighbor
+ * For all trapezoids in t_map, if the neighbor in the index position, is old_trap, then new_trap is replaced as neighbor for that position
+ * @param position the position to check if the trapezoid is neighbor
+ * @param old_trap the id of the trapezoid to check if it is neighbor of all trapezoids
+ * @param new_trap the id to replace when old_trap is found
+ */
+void TrapezoidalMap::replaceAllPositionNeighbor(cg3::Segment2d s ,size_t position, size_t old_trap, size_t t_top, size_t t_bottom, size_t next){
+    cg3::Point2d vertex;
+    for(size_t i = 0; i < t_map.size(); i++){
+        if (i != next && old_trap == t_map[i].getNeighbor(position) && i != t_top && i != t_bottom){
+            switch(position){
+            case TOP_LEFT:
+                vertex = t_map[i].getTop().p1();
+                break;
+            case TOP_RIGHT:
+                vertex = t_map[i].getTop().p2();
+                break;
+            case BOTTOM_LEFT:
+                vertex = t_map[i].getLeftp();
+                break;
+            case BOTTOM_RIGHT:
+                vertex = t_map[i].getRightp();
+                break;
+            }
+
+            if(utility::isAbove(s,vertex)){
+                t_map[i].setNeighbor(position,t_top);
+            }
+            else{
+                t_map[i].setNeighbor(position,t_bottom);
+            }
+
         }
     }
 }

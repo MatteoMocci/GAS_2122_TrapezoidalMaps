@@ -211,6 +211,18 @@ void Trapezoid::setNeighbor(size_t index, size_t rep){
     neighbors[index] = rep;
 }
 
+
+/**
+ * @brief Trapezoid::setNeighbor
+ * This method replaces the value in the position index with the value rep passed as parameter
+ * @param index the position of the neighbor array in which replace the value
+ * @param rep the new value for that position
+ */
+void Trapezoid::setNeighbors(size_t neighbors[]){
+    for(size_t i = 0; i < 4; i++){
+        this->neighbors[i] = neighbors[i];
+    }
+}
 /**
  * @brief Trapezoid::setDagId
  * This method sets the attribute that represent the position in the dag in which the trapezoid is stored

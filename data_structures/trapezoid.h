@@ -39,6 +39,7 @@ public:
     void setBorderWidth(size_t width);
     void setEmptyNeighbors();
     void setNeighbor(size_t index, size_t rep);
+    void setNeighbors(size_t neighbors[]);
     void setDagId(size_t index);
 
 

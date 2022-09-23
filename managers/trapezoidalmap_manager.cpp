@@ -209,7 +209,7 @@ void TrapezoidalMapManager::addSegmentToTrapezoidalMap(const cg3::Segment2d& seg
     delta = algorithms::followSegment(drawableMap,dag,orderedSegment);
 
     if(delta.size() == 1){
-        algorithms::splitin4(drawableMap,orderedSegment,dag,delta[0]);
+        algorithms::splitin4(drawableMap,orderedSegment,dag,delta[0].getId());
     }
     else{
         algorithms::multipleSplit(drawableMap,orderedSegment,dag,delta);

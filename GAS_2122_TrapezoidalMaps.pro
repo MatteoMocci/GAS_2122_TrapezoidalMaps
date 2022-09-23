@@ -41,6 +41,7 @@ DISTFILES += \
 
 SOURCES +=  \
     algorithms/algorithms.cpp \
+    algorithms/utility.cpp \
     data_structures/dag.cpp \
     data_structures/dag_node.cpp \
     data_structures/segment_intersection_checker.cpp \
@@ -58,6 +59,7 @@ FORMS += \
 
 HEADERS += \
     algorithms/algorithms.h \
+    algorithms/utility.h \
     data_structures/dag.h \
     data_structures/dag_node.h \
     data_structures/segment_intersection_checker.h \

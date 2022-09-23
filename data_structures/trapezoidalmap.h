@@ -2,6 +2,7 @@
 #define TRAPEZOIDALMAP_H
 
 #include "trapezoid.h"
+#include "algorithms/utility.h"
 
 class TrapezoidalMap
 {
@@ -26,6 +27,10 @@ class TrapezoidalMap
         void setNeighbor(size_t trap, size_t index, size_t rep);
         std::vector<size_t> getAllTasNeighbor(size_t position, size_t trap);
         void replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t new_trap);
+        void replaceAllPositionNeighbor(cg3::Segment2d s ,size_t position, size_t old_trap, size_t t_top, size_t t_bottom );
+        void replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t new_trap, size_t next);
+        void replaceAllPositionNeighbor(cg3::Segment2d s ,size_t position, size_t old_trap, size_t t_top, size_t t_bottom, size_t next);
+
 
 
 
