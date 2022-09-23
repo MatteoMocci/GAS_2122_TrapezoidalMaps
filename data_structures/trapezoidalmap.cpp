@@ -59,6 +59,7 @@ size_t TrapezoidalMap::insertTrapezoid(Trapezoid& t){
  * @param t the trapezoid to insert at his place
  */
 void TrapezoidalMap::replaceTrapezoid(size_t index, Trapezoid& t){
+    t.setNeighbors(t_map[index].getNeighbors());
     t.setId(index);     //the new trapezoid will now have the id of the old trapezoid
     t_map[index] = t;   //the old trapezoid is replaced with the new in the vector
 }
