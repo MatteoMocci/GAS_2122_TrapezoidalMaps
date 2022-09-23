@@ -4,19 +4,6 @@
 #define BOTTOM_LEFT 2
 #define BOTTOM_RIGHT 3
 
-/*
- * Input. 	A trapezoidal map T, a search structure D for T, and a new segment si
- * Output. 	The sequence Δ0, Δ1, …, Δk of trapezoids intersected by si
- * 1. Let p and q be the left and right endpoint of si
- * 2. Search with p in the search structure D to find Δ0
- * 3.	j ← 0
- * 4.	while q lies to the right of rightp(Δj)
- * 5.		do if rightp(Δj) lies above si
- * 6.				then Δj+1 be the lower right neighbor of Δj
- * 7.				else Δj+1 be the upper right neighbor of Δj
- * 8.			j ← j+1
- * 9.	return Δ0, Δ1, …, Δk
- */
 
 /**
  * @brief algorithms::followSegment
@@ -61,6 +48,7 @@ std::vector<Trapezoid> algorithms::followSegment(TrapezoidalMap T, Dag D, cg3::S
  * @param tright the id of the trapezoid to the right
  * @param ttop the id of the trapezoid above
  * @param tbottom the id of the trapezoid below
+ * @return the vector with the ids of the dag of the 4 trapezoids
  */
 std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t tleft, size_t tright, size_t ttop, size_t tbottom){
 
@@ -148,7 +136,19 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tspli
     return tId;
 
 }
-
+/**
+ * @brief algorithms::updateDag
+ * This is an override of the updateDag function to manage the case of a split in 3. This function returns the vector with the dag id's
+ * of the 3 trapezoids, in order to update the field of the trapezoid in the split in 3 algorithm.
+ * @param D The dag to update
+ * @param s The segment that caused the split and thus the update of the dag
+ * @param tsplit the id of the dagNode of the Trapezoid intersected by the segment
+ * @param ttop The id of the trapezoid on the top
+ * @param tbottom The id of the trapezoid on the bottom
+ * @param tother The id of the other trapezoid (left or right)
+ * @param left a boolean value that determines if the split in 3 is on the left or on the right
+ * @return the vector with the id of the dagNodes representing the 3 trapezoids inserted in the Dag.
+ */
 std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom, size_t tother, bool left){
     //obtain the size of the vectors of dagNodes, points and segment
     size_t pSize = D.getVectorSize(POINT);
@@ -203,6 +203,7 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tspli
     if(!left){
         c_id = D.insertInVector(c);
     }
+
     //set left and right children
     if(left){
         D.getElementInDVector(p_id).setLeftc(c_id);
@@ -243,7 +244,17 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tspli
 
 
 }
-
+/**
+ * @brief algorithms::updateDag
+ * This override of updateDag is used when a split in 2 occurs. As always, the vector of the dagNode id's created for the trapezoids
+ * in order to update the field of the trapezoid that stores the position in the Dag in which the trapezoid is present
+ * @param D the Dag to update
+ * @param s the segment that caused the split and thus the update of the Dag
+ * @param tsplit the id of the DagNode representing the trapezoid that is intersected by the segment
+ * @param ttop the id of the Trapezoid above the segment
+ * @param tbottom the id of the Trapezoid below the segment
+ * @return A vector with the id's of the DagNodes representing the top and bottom trapezoid
+ */
 std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom){
     //obtain the size of the vectors of dagNodes, points and segment
     bool alreadyPresent;
@@ -362,7 +373,22 @@ size_t algorithms::queryPoint(Dag dag, cg3::Point2d p){
     }
    }
 }
-
+/**
+ * @brief algorithms::splitin2
+ * This algorithm performs a split in 2. The old trapezoid is divided in one above and one below. One of the two has to be merged with
+ * a previous trapezoid t_merge. The boolean parameter merge_above establishes which of the two has to be merged.
+ * The neighbors of the trapezoids are set.
+ * The updateDag() method is called in order to reflect the changes in the trapezoidal map in the DAG as well.
+ * @param T The trapezoidal Map containing the trapezoids
+ * @param s The segment that caused the split
+ * @param D The dag that is a search structure for the trapezoidal Map
+ * @param trap_id the id of the trapezoid that is intersected by the segment
+ * @param merge_above a boolean value that establishes if the trapezoid that has to be merged with the previous is the top or bottom one
+ * @param t_merge The trapezoid from the previous split that needs to be merged
+ * @param t_prev The id of the other trapezoid from the previous split. It is necessary in order to update its neighbors.
+ * @param next The id of the next trapezoid that is intersected by the segment. In this way, the neighbors of this trapezoid
+ * won't be updated, since a split will occur after this one
+ */
 void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, size_t trap_id, bool& merge_above, Trapezoid& t_merge, size_t & t_prev, size_t next){
     char dummy;
     Trapezoid ttop, tbottom, t_split;
@@ -496,6 +522,11 @@ void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, s
  * @param t_split the trapezoid to delete
  * @param left This parameter determines if the split occurs in the left or in the right endpoint of the segment, for which
  * the split in 3 is different
+ * @param merge_above a boolean value that determines if the merge has to be done with the trapezoid above or below the segment
+ * @param t_merge a reference to the previous trapezoid that has to be merged
+ * @param t_prev the id of the other trapezoid generated in the previous split. This is necessary in order to update the neighbors
+ * @param next the id of the next Trapezoid that is intersected by the segment. This is necessary in order to avoid to update
+ * his neighbors because new trapezoids will be generated in the next split
  */
 void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, size_t trap_id, bool left, bool& merge_above, Trapezoid & t_merge, size_t & t_prev, size_t next){
 
@@ -748,6 +779,7 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
  * @param T a reference to the TrapezoidalMap
  * @param s a reference to the segment that caused the split in 4
  * @param D a refernece to the Dag
+ * @param trap_id the id of the trapezoid intersected by the segment
  */
 void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, size_t trap_id){
     char dummy;
@@ -858,9 +890,11 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
 /**
  * @brief algorithms::multipleSplit
  * This method performs a multiple split when a segment intersects more than a trapezoid.
- * @param T the trapezoidal map containing the trapezoids
- * @param s the segment inserted
- * @param D the dag to use as a search structure
+ * A split in 3 to the left is called for the first trapezoid, a split in 3 to the right is called for the last trapezoid and, if
+ * there are more than 2 elements, a split in 2 is called for all of the middle trapezoids.
+ * @param T a reference to the trapezoidal map containing the trapezoids
+ * @param s a reference to the segment inserted
+ * @param D a reference to the dag to use as a search structure
  * @param delta the list of trapezoids intersected by the segment s
  */
 void algorithms::multipleSplit(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, std::vector<Trapezoid> delta){

@@ -27,7 +27,6 @@ class Dag
         cg3::Segment2d& getElementInSVector(size_t index);
         void clearDag();
         void insertBoundingBoxD();
-        size_t find(size_t entityid);
         void findSegment(cg3::Segment2d s, bool& found, size_t& index);
         void findPoint(cg3::Point2d p, bool& found, size_t& index);
 

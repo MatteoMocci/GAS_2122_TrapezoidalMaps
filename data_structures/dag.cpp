@@ -186,20 +186,12 @@ void Dag::clearDag(){
 }
 
 /**
- * @brief Dag::find
- * This method returns the position of the node in the dag with the entityid equal to the parameter
- * @param entityid the id of the entity of which to find the node
- * @return the position in which the node is in the vector of dagNodes
+ * @brief Dag::findSegment
+ * This method checks if the segment s is present in the vector of segments and returns his position
+ * @param[in] s the segment to check
+ * @param[out] found a reference to a boolean that is set to true if the segment is found
+ * @param[out] index a reference to a size_t that is set with the position in which the segment is found
  */
-size_t Dag::find(size_t entityid){
-    for (size_t i = 0; i < dVector.size(); i++){
-        if (dVector[i].getEntityId() == entityid){
-            return i;
-        }
-    }
-    return SIZE_MAX;
-}
-
 void Dag::findSegment(cg3::Segment2d s, bool& found, size_t& index){
     for (size_t i = 0; i < sVector.size(); i++){
         if(sVector[i] == s){
@@ -211,7 +203,13 @@ void Dag::findSegment(cg3::Segment2d s, bool& found, size_t& index){
     found = false;
 }
 
-
+/**
+ * @brief Dag::findPoint
+ * This method checks if the point p is present in the vector of points and returns his position
+ * @param[in] p the point to check
+ * @param[out] found a reference to a boolean that is set to true if the point is found
+ * @param[out] index a reference to a size_t that is set with the position in which the point is found
+ */
 void Dag::findPoint(cg3::Point2d p, bool& found, size_t& index){
     for (size_t i = 0; i < sVector.size(); i++){
         if(pVector[i] == p){

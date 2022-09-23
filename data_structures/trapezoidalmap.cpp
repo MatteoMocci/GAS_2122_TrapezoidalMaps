@@ -74,6 +74,10 @@ Trapezoid& TrapezoidalMap::getTrapezoid(size_t index){
     return t_map[index];
 }
 
+/**
+ * @brief TrapezoidalMap::getTsize
+ * @return the number of trapezoids stored in the Trapezoidal Map
+ */
 size_t TrapezoidalMap::getTsize() const{
     return t_map.size();
 }
@@ -130,11 +134,13 @@ void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap
 }
 
 /**
- * @brief TrapezoidalMap::getAllTasNeighbor
+ * @brief TrapezoidalMap::replaceAllPositionNeighbor
  * For all trapezoids in t_map, if the neighbor in the index position, is old_trap, then new_trap is replaced as neighbor for that position
  * @param position the position to check if the trapezoid is neighbor
  * @param old_trap the id of the trapezoid to check if it is neighbor of all trapezoids
  * @param new_trap the id to replace when old_trap is found
+ * @param next the id to the next trapezoid intersected by the segment. This way, the neighbors of this trapezoid
+ * are not replaced since it will be splitted afterwards.
  */
 void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t new_trap, size_t next){
     for(size_t i = 0; i < t_map.size(); i++){
@@ -145,11 +151,17 @@ void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap
 }
 
 /**
- * @brief TrapezoidalMap::getAllTasNeighbor
- * For all trapezoids in t_map, if the neighbor in the index position, is old_trap, then new_trap is replaced as neighbor for that position
+ * @brief TrapezoidalMap::replaceAllPositionNeighbor
+ * This is an override of the replaceAllPositionNeighbor method that checks if a particular vertex of the trapezoid
+ * (depending on the position) is above or below the segment s. If is above, t_top is set as neighbor, otherwise
+ * t_bottom is set as neighbor
+ * @param s the segment s that is used to establish if t_top or t_bottom has to be set as neighbor
  * @param position the position to check if the trapezoid is neighbor
  * @param old_trap the id of the trapezoid to check if it is neighbor of all trapezoids
- * @param new_trap the id to replace when old_trap is found
+ * @param t_top the id of the trapezoid above the segment
+ * @param t_bottom the id of the trapezoid below the segment
+ * @param next the id of the next trapezoid to be intersected by the segment. This way, the neighbors of that
+ * trapezoid are not replaced, since that trapezoid will be splitted later.
  */
 void TrapezoidalMap::replaceAllPositionNeighbor(cg3::Segment2d s ,size_t position, size_t old_trap, size_t t_top, size_t t_bottom, size_t next){
     cg3::Point2d vertex;
@@ -180,7 +192,12 @@ void TrapezoidalMap::replaceAllPositionNeighbor(cg3::Segment2d s ,size_t positio
         }
     }
 }
-
+/**
+ * @brief TrapezoidalMap::setDagId
+ * This method sets dag_id as the position in the Dag for the trapezoid identified by trap_id
+ * @param trap_id the id of the trapezoid to modift
+ * @param dag_id the position in the Dag for that trapezoid
+ */
 void TrapezoidalMap::setDagId(size_t trap_id, size_t dag_id){
     t_map[trap_id].setDagId(dag_id);
 }
