@@ -82,16 +82,6 @@ size_t DagNode::getDagId(){
     return dag_index;
 }
 
-/**
- * @brief operator ==
- * Override of operator == for dagNodes. Two dagNodes represent the same dagNode when they have the same id.
- * @param d1 the first dagNode to compare
- * @param d2 the second dagNode to compare
- * @return true if the two dagNodes are equal, false otherwise
- */
-bool operator==(const DagNode& d1, const DagNode& d2){
-    return d1.dag_index == d2.dag_index;
-}
 
 
 

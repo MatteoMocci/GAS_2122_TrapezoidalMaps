@@ -28,9 +28,6 @@ class DagNode{
         size_t getDagId();
         void setDagId(size_t index);
 
-        //override of == operator for dag nodes
-        friend bool operator==(const DagNode& d1, const DagNode& d2);
-
     private:
         //attributes of a dag node
         size_t leftc;       //the id of the left children in the DAG of the current node

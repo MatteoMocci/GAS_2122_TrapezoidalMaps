@@ -50,7 +50,7 @@ std::vector<Trapezoid> algorithms::followSegment(TrapezoidalMap T, Dag D, cg3::S
  * @param tbottom the id of the trapezoid below
  * @return the vector with the ids of the dag of the 4 trapezoids
  */
-std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t tleft, size_t tright, size_t ttop, size_t tbottom){
+std::vector<size_t> algorithms::updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, size_t tsplit, size_t tleft, size_t tright, size_t ttop, size_t tbottom){
 
     //obtain the size of the vectors of dagNodes, points and segment
     size_t pSize = D.getVectorSize(POINT);
@@ -104,16 +104,39 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tspli
     DagNode c = DagNode(TRAPEZOID, tbottom);
     DagNode d = DagNode(TRAPEZOID, tright);
 
-
-
     //push the nodes in the dag vector
     p1_id = D.replaceNode(tsplit,p1);
     p2_id = D.insertInVector(p2);
     s_id = D.insertInVector(sn);
-    a_id = D.insertInVector(a);
-    b_id = D.insertInVector(b);
-    c_id = D.insertInVector(c);
-    d_id = D.insertInVector(d);
+
+    if(T.getTrapezoid(tleft).getDagId() == SIZE_MAX){
+        a_id = D.insertInVector(a);
+    }
+    else{
+        a_id = T.getTrapezoid(tleft).getDagId();
+    }
+
+    if(T.getTrapezoid(ttop).getDagId() == SIZE_MAX){
+        b_id = D.insertInVector(b);
+    }
+    else{
+        b_id = T.getTrapezoid(ttop).getDagId();
+    }
+
+    if(T.getTrapezoid(tbottom).getDagId() == SIZE_MAX){
+        c_id = D.insertInVector(c);
+    }
+    else{
+        c_id = T.getTrapezoid(tbottom).getDagId();
+    }
+
+    if(T.getTrapezoid(tright).getDagId() == SIZE_MAX){
+        d_id = D.insertInVector(d);
+    }
+    else{
+        d_id = T.getTrapezoid(tright).getDagId();
+    }
+
 
     //set left and right children
     D.getElementInDVector(p1_id).setLeftc(a_id);
@@ -149,7 +172,7 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tspli
  * @param left a boolean value that determines if the split in 3 is on the left or on the right
  * @return the vector with the id of the dagNodes representing the 3 trapezoids inserted in the Dag.
  */
-std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom, size_t tother, bool left){
+std::vector<size_t> algorithms::updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom, size_t tother, bool left){
     //obtain the size of the vectors of dagNodes, points and segment
     size_t pSize = D.getVectorSize(POINT);
     size_t sSize = D.getVectorSize(SEGMENT);
@@ -195,13 +218,56 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tspli
     //push the nodes in the dag vector
     p_id = D.replaceNode(tsplit,p);
     s_id = D.insertInVector(sn);
+
     if(left){
-        c_id = D.insertInVector(c);
+        if(T.getTrapezoid(tother).getDagId() == SIZE_MAX){
+            c_id = D.insertInVector(c);
+        }
+        else{
+            c_id = T.getTrapezoid(tother).getDagId();
+        }
     }
-    a_id = D.insertInVector(a);
-    b_id = D.insertInVector(b);
-    if(!left){
-        c_id = D.insertInVector(c);
+    else{
+        if(T.getTrapezoid(ttop).getDagId() == SIZE_MAX){
+            a_id = D.insertInVector(a);
+        }
+        else{
+            a_id = T.getTrapezoid(ttop).getDagId();
+        }
+    }
+
+    if(left){
+        if(T.getTrapezoid(ttop).getDagId() == SIZE_MAX){
+            a_id = D.insertInVector(a);
+        }
+        else{
+            a_id = T.getTrapezoid(ttop).getDagId();
+        }
+    }
+    else{
+        if(T.getTrapezoid(tbottom).getDagId() == SIZE_MAX){
+            b_id = D.insertInVector(b);
+        }
+        else{
+            b_id = T.getTrapezoid(tbottom).getDagId();
+        }
+    }
+
+    if(left){
+        if(T.getTrapezoid(tbottom).getDagId() == SIZE_MAX){
+            b_id = D.insertInVector(b);
+        }
+        else{
+            b_id = T.getTrapezoid(tbottom).getDagId();
+        }
+    }
+    else{
+        if(T.getTrapezoid(tother).getDagId() == SIZE_MAX){
+            c_id = D.insertInVector(c);
+        }
+        else{
+            c_id = T.getTrapezoid(tother).getDagId();
+        }
     }
 
     //set left and right children
@@ -255,7 +321,7 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tspli
  * @param tbottom the id of the Trapezoid below the segment
  * @return A vector with the id's of the DagNodes representing the top and bottom trapezoid
  */
-std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom){
+std::vector<size_t> algorithms::updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom){
     //obtain the size of the vectors of dagNodes, points and segment
     bool alreadyPresent;
     size_t entity_position;
@@ -283,8 +349,21 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tspli
     //push the nodes in the dag vector
     s_id = tsplit;
     D.replaceNode(tsplit,sn);
-    a_id = D.insertInVector(a);
-    b_id = D.insertInVector(b);
+
+    if(T.getTrapezoid(ttop).getDagId() == SIZE_MAX){
+        a_id = D.insertInVector(a);
+    }
+    else{
+        a_id = T.getTrapezoid(ttop).getDagId();
+    }
+
+    if(T.getTrapezoid(tbottom).getDagId() == SIZE_MAX){
+        b_id = D.insertInVector(b);
+    }
+    else{
+        b_id = T.getTrapezoid(tbottom).getDagId();
+    }
+
     //set left and right children
     D.getElementInDVector(s_id).setLeftc(a_id);
     D.getElementInDVector(s_id).setRightc(b_id);
@@ -313,7 +392,7 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, size_t tspli
  * @param tbottom, the id of the trapezoid below the segment
  * @return a vector with the dag ids of the three trapezoids
  */
-std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, coincidence coincidence, size_t tsplit, size_t tother, size_t ttop, size_t tbottom){
+std::vector<size_t> algorithms::updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, coincidence coincidence, size_t tsplit, size_t tother, size_t ttop, size_t tbottom){
     //obtain the size of the vectors of dagNodes, points and segment
     size_t pSize = D.getVectorSize(POINT);
     size_t sSize = D.getVectorSize(SEGMENT);
@@ -345,9 +424,56 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, coincidence 
 
     p_id = D.replaceNode(tsplit,p);
     s_id = D.insertInVector(sn);
-    a_id = D.insertInVector(a);
-    b_id = D.insertInVector(b);
-    c_id = D.insertInVector(c);
+
+    switch(coincidence){
+    case LEFT:
+        if(T.getTrapezoid(ttop).getDagId() == SIZE_MAX){
+            a_id = D.insertInVector(a);
+        }
+        else{
+            a_id = T.getTrapezoid(ttop).getDagId();
+        }
+
+        if(T.getTrapezoid(tbottom).getDagId() == SIZE_MAX){
+            b_id = D.insertInVector(b);
+        }
+        else{
+            b_id = T.getTrapezoid(tbottom).getDagId();
+        }
+
+        if(T.getTrapezoid(tother).getDagId() == SIZE_MAX){
+            c_id = D.insertInVector(c);
+        }
+        else{
+            c_id = T.getTrapezoid(tother).getDagId();
+        }
+
+        break;
+
+    case RIGHT:
+        if(T.getTrapezoid(tother).getDagId() == SIZE_MAX){
+            a_id = D.insertInVector(a);
+        }
+        else{
+            a_id = T.getTrapezoid(tother).getDagId();
+        }
+
+        if(T.getTrapezoid(ttop).getDagId() == SIZE_MAX){
+            b_id = D.insertInVector(b);
+        }
+        else{
+            b_id = T.getTrapezoid(ttop).getDagId();
+        }
+
+        if(T.getTrapezoid(tbottom).getDagId() == SIZE_MAX){
+            c_id = D.insertInVector(c);
+        }
+        else{
+            c_id = T.getTrapezoid(tbottom).getDagId();
+        }
+    default:
+        break;
+    }
 
     switch(coincidence){
     case LEFT:
@@ -388,7 +514,7 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, coincidence 
  * @param tbottom, the id of the trapezoid below the segment
  * @return a vector with the dag ids of the two trapezoids
  */
-std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, coincidence coincidence, size_t tsplit, size_t ttop, size_t tbottom){
+std::vector<size_t> algorithms::updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, coincidence coincidence, size_t tsplit, size_t ttop, size_t tbottom){
     //obtain the size of the vectors of dagNodes, points and segment
     size_t sSize = D.getVectorSize(SEGMENT);
     std::vector<size_t> tId;
@@ -404,8 +530,20 @@ std::vector<size_t> algorithms::updateDag(Dag& D, cg3::Segment2d s, coincidence 
     b  = DagNode(TRAPEZOID,tbottom);
 
     s_id = D.replaceNode(tsplit,sn);
-    a_id = D.insertInVector(a);
-    b_id = D.insertInVector(b);
+
+    if(T.getTrapezoid(ttop).getDagId() == SIZE_MAX){
+        a_id = D.insertInVector(a);
+    }
+    else{
+        a_id = T.getTrapezoid(ttop).getDagId();
+    }
+
+    if(T.getTrapezoid(tbottom).getDagId() == SIZE_MAX){
+        b_id = D.insertInVector(b);
+    }
+    else{
+        b_id = T.getTrapezoid(tbottom).getDagId();
+    }
 
     D.getElementInDVector(s_id).setLeftc(a_id);
     D.getElementInDVector(s_id).setRightc(b_id);
@@ -644,7 +782,7 @@ void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, s
             first = false;
         }
     }
-    dagVector = updateDag(D,s,dag_id,top_id,bottom_id);
+    dagVector = updateDag(T,D,s,dag_id,top_id,bottom_id);
     T.setDagId(top_id,dagVector[0]);
     T.setDagId(bottom_id,dagVector[1]);
 }
@@ -839,7 +977,7 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
     }
     switch(coincidence){
     case NONE:
-        dagVector = updateDag(D,s,dag_id,top_id,bottom_id,other_id,left);
+        dagVector = updateDag(T,D,s,dag_id,top_id,bottom_id,other_id,left);
         if(left){
             T.setDagId(other_id,dagVector[2]);
             T.setDagId(top_id,dagVector[0]);
@@ -853,7 +991,7 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
         break;
     case LEFT:
     case RIGHT:
-        dagVector = updateDag(D,s,coincidence,dag_id,top_id,bottom_id);
+        dagVector = updateDag(T,D,s,coincidence,dag_id,top_id,bottom_id);
         T.setDagId(top_id,dagVector[0]);
         T.setDagId(bottom_id,dagVector[1]);
         break;
@@ -1171,26 +1309,26 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
 
     switch(c){
     case NONE:
-        dagVector = updateDag(D,s,dag_id,left_id,right_id,top_id,bottom_id); //update the Dag
+        dagVector = updateDag(T,D,s,dag_id,left_id,right_id,top_id,bottom_id); //update the Dag
         T.setDagId(left_id,dagVector[0]);
         T.setDagId(top_id,dagVector[1]);
         T.setDagId(bottom_id,dagVector[2]);
         T.setDagId(right_id,dagVector[3]);
         break;
     case LEFT:
-        dagVector = updateDag(D,s,c,dag_id,right_id,top_id,bottom_id);
+        dagVector = updateDag(T,D,s,c,dag_id,right_id,top_id,bottom_id);
         T.setDagId(top_id,dagVector[0]);
         T.setDagId(bottom_id,dagVector[1]);
         T.setDagId(right_id,dagVector[2]);
         break;
     case RIGHT:
-        dagVector = updateDag(D,s,c,dag_id,left_id,top_id,bottom_id);
+        dagVector = updateDag(T,D,s,c,dag_id,left_id,top_id,bottom_id);
         T.setDagId(left_id,dagVector[0]);
         T.setDagId(top_id,dagVector[1]);
         T.setDagId(bottom_id,dagVector[2]);
         break;
     case BOTH:
-        dagVector = updateDag(D,s,c,dag_id,top_id,bottom_id);
+        dagVector = updateDag(T,D,s,c,dag_id,top_id,bottom_id);
         T.setDagId(top_id,dagVector[0]);
         T.setDagId(bottom_id,dagVector[1]);
         break;

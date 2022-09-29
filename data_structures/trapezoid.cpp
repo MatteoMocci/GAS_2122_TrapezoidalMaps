@@ -12,20 +12,9 @@ cg3::Color Trapezoid::lastColor = cg3::Color(0,0,0);
  */
 Trapezoid::Trapezoid(cg3::Point2d leftp, cg3::Point2d rightp, cg3::Segment2d top, cg3::Segment2d bottom):
     leftp(leftp), rightp(rightp), bottom(bottom), top(top), color(cg3::Color(rand()%256, rand()%256, rand()%256)),
-    borderColor(cg3::Color(0,0,0)), borderWidth(2), c(NONE)
+    borderColor(cg3::Color(0,0,0)), borderWidth(2), dagIndex(SIZE_MAX)
 {
     setEmptyNeighbors();
-}
-
-/**
- * @brief operator ==
- * Override of the == operator for trapezoids. Two trapezoids are equal when they both have the same index
- * @param t1 the first trapezoid to compare
- * @param t2 the second trapezoid to compare
- * @return true if the two trapezoids are equal, false otherwise
- */
-bool operator==(const Trapezoid& t1, const Trapezoid& t2){
-    return t1.trapIndex == t2.trapIndex;
 }
 
 /**
@@ -182,16 +171,6 @@ void Trapezoid::setEmptyNeighbors(){
 }
 
 /**
- * @brief Trapezoid::setCoincidence
- * This method sets the attribute coincidence for a trapezoid.
- * 0 = NO COINCIDENCE, 1 = LEFT-COINCIDENT, 2 = RIGHT-COINCIDENT
- * @param position the value to set as coincidence
- */
-void Trapezoid::setCoincidence(coincidence position){
-   c = position;
-}
-
-/**
  * @brief Trapezoid::getNeighbor
  * This method returns the id of the neighbor in the position indicated by the parameter index.
  * 0 = TOP_LEFT, 1 = TOP_RIGHT, 2 = BOTTOM_LEFT, 3 = BOTTOM_RIGHT
@@ -211,14 +190,6 @@ size_t* Trapezoid::getNeighbors(){
 }
 
 
-/**
- * @brief Trapezoid::getCoincidence
- * @return NONE if the trapezoid has no coincident,
- * LEFT if the trapezoid is left-coincident, RIGHT If the trapezoid is right-coincident
- */
-coincidence Trapezoid::getCoincidence() const{
-   return c;
-}
 
 /**
  * @brief Trapezoid::setNeighbor

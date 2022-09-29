@@ -13,11 +13,11 @@ namespace algorithms{
    size_t getIndex(std::vector<T> v, T K);
 
    //dag-related methods
-   std::vector<size_t> updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t tleft, size_t tright, size_t ttop, size_t tbottom);
-   std::vector<size_t> updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom, size_t tother, bool left);
-   std::vector<size_t> updateDag(Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom);
-   std::vector<size_t> updateDag(Dag& D, cg3::Segment2d s, coincidence coincidence, size_t tsplit, size_t tother, size_t ttop, size_t tbottom);
-   std::vector<size_t> updateDag(Dag& D, cg3::Segment2d s, coincidence coincidence, size_t tsplit, size_t ttop, size_t tbottom);
+   std::vector<size_t> updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, size_t tsplit, size_t tleft, size_t tright, size_t ttop, size_t tbottom);
+   std::vector<size_t> updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom, size_t tother, bool left);
+   std::vector<size_t> updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, size_t tsplit, size_t ttop, size_t tbottom);
+   std::vector<size_t> updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, coincidence coincidence, size_t tsplit, size_t tother, size_t ttop, size_t tbottom);
+   std::vector<size_t> updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, coincidence coincidence, size_t tsplit, size_t ttop, size_t tbottom);
    size_t queryPoint(Dag dag, cg3::Point2d p);
 
    //split methods
