@@ -12,7 +12,7 @@ cg3::Color Trapezoid::lastColor = cg3::Color(0,0,0);
  */
 Trapezoid::Trapezoid(cg3::Point2d leftp, cg3::Point2d rightp, cg3::Segment2d top, cg3::Segment2d bottom):
     leftp(leftp), rightp(rightp), bottom(bottom), top(top), color(cg3::Color(rand()%256, rand()%256, rand()%256)),
-    borderColor(cg3::Color(0,0,0)), borderWidth(2)
+    borderColor(cg3::Color(0,0,0)), borderWidth(2), c(NONE)
 {
     setEmptyNeighbors();
 }
@@ -181,6 +181,15 @@ void Trapezoid::setEmptyNeighbors(){
     }
 }
 
+/**
+ * @brief Trapezoid::setCoincidence
+ * This method sets the attribute coincidence for a trapezoid.
+ * 0 = NO COINCIDENCE, 1 = LEFT-COINCIDENT, 2 = RIGHT-COINCIDENT
+ * @param position the value to set as coincidence
+ */
+void Trapezoid::setCoincidence(coincidence position){
+   c = position;
+}
 
 /**
  * @brief Trapezoid::getNeighbor
@@ -199,6 +208,16 @@ size_t Trapezoid::getNeighbor(size_t index){
  */
 size_t* Trapezoid::getNeighbors(){
     return neighbors;
+}
+
+
+/**
+ * @brief Trapezoid::getCoincidence
+ * @return NONE if the trapezoid has no coincident,
+ * LEFT if the trapezoid is left-coincident, RIGHT If the trapezoid is right-coincident
+ */
+coincidence Trapezoid::getCoincidence() const{
+   return c;
 }
 
 /**

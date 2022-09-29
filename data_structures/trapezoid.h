@@ -6,6 +6,8 @@
 #include <cg3/utilities/color.h>
 #define BOUNDINGBOX 1e+6 // the length of a side of the bounding box
 
+enum coincidence{NONE,LEFT,RIGHT,BOTH};
+
 class Trapezoid
 {
 
@@ -27,6 +29,7 @@ public:
     size_t getNeighbor(size_t index);
     size_t* getNeighbors();
     size_t getDagId() const;
+    coincidence getCoincidence() const;
 
     //setters
     void setLeftp(cg3::Point2d leftp);
@@ -41,6 +44,7 @@ public:
     void setNeighbor(size_t index, size_t rep);
     void setNeighbors(size_t neighbors[]);
     void setDagId(size_t index);
+    void setCoincidence(coincidence position);
 
 
     //override of the == operator for trapezoids
@@ -63,6 +67,7 @@ private:
     size_t trapIndex;       //the id of the trapezoid, the position in the trapezoidalmap
     size_t neighbors[4];     //the array of the index of neighbors of a trapezoid
     size_t dagIndex;        //the position in which the element is stored in the dag
+    coincidence c; //if the trapezoid is left or right coincident
 };
 
 #endif // TRAPEZOID_H
