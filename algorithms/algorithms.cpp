@@ -389,7 +389,7 @@ size_t algorithms::queryPoint(Dag dag, cg3::Point2d p){
  * @param next The id of the next trapezoid that is intersected by the segment. In this way, the neighbors of this trapezoid
  * won't be updated, since a split will occur after this one
  */
-void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, size_t trap_id, bool& merge_above, Trapezoid& t_merge, size_t & t_prev, size_t next){
+void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, size_t trap_id, bool& merge_above, Trapezoid& t_merge, size_t & t_prev, size_t next, bool& first){
     char dummy;
     Trapezoid ttop, tbottom, t_split;
     size_t merge_id, dag_id;
@@ -421,8 +421,8 @@ void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, s
 
     //create the trapezoid above
     ttop = Trapezoid(
-                p1,
-                p2,
+                t_split.getLeftp(),
+                t_split.getRightp(),
                 t_split.getTop(),
                 internal
                 );
@@ -435,27 +435,30 @@ void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, s
                 t_split.getBottom()
                 );
 
-    if(merge_above){
-        ttop.setLeftp(t_merge.getLeftp());
-        ttop.setTop(cg3::Segment2d(t_merge.getTop().p1(),ttop.getTop().p2()));
-        ttop.setBottom(cg3::Segment2d(t_merge.getBottom().p1(),ttop.getBottom().p2()));
-        top_id = t_merge.getId();
-        bottom_id = trap_id;
-        ttop.setNeighbors(t_merge.getNeighbors());
-        tbottom.setNeighbors(t_split.getNeighbors());
-        T.replaceTrapezoid(top_id,ttop);
+     if(merge_above){
 
-    }
-    else{
-        tbottom.setLeftp(t_merge.getLeftp());
-        tbottom.setTop(cg3::Segment2d(t_merge.getTop().p1(),tbottom.getTop().p2()));
-        tbottom.setBottom(cg3::Segment2d(t_merge.getBottom().p1(),tbottom.getBottom().p2()));
-        bottom_id = t_merge.getId();
-        top_id = trap_id;
-        tbottom.setNeighbors(t_merge.getNeighbors());
-        ttop.setNeighbors(t_split.getNeighbors());
-        T.replaceTrapezoid(bottom_id,tbottom);
-    }
+            ttop.setLeftp(t_merge.getLeftp());
+            ttop.setTop(cg3::Segment2d(t_merge.getTop().p1(),ttop.getTop().p2()));
+            ttop.setBottom(cg3::Segment2d(t_merge.getBottom().p1(),ttop.getBottom().p2()));
+            ttop.setNeighbors(t_merge.getNeighbors());
+            top_id = t_merge.getId();
+            T.replaceTrapezoid(top_id,ttop);
+            bottom_id = trap_id;
+            T.replaceTrapezoid(bottom_id,tbottom);
+            tbottom.setNeighbors(t_split.getNeighbors());
+        }
+        else{
+
+            tbottom.setLeftp(t_merge.getLeftp());
+            tbottom.setTop(cg3::Segment2d(t_merge.getTop().p1(),tbottom.getTop().p2()));
+            tbottom.setBottom(cg3::Segment2d(t_merge.getBottom().p1(),tbottom.getBottom().p2()));
+            tbottom.setNeighbors(t_merge.getNeighbors());
+            bottom_id = t_merge.getId();
+            T.replaceTrapezoid(bottom_id,tbottom);
+            top_id = trap_id;
+            T.replaceTrapezoid(top_id,ttop);
+            ttop.setNeighbors(t_split.getNeighbors());
+        }
 
 
     if(merge_above){
@@ -468,41 +471,60 @@ void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, s
     }
 
     if(merge_above){
-        T.setNeighbor(bottom_id,TOP_LEFT,t_prev);
-        T.setNeighbor(bottom_id,BOTTOM_LEFT,t_prev);
-        T.setNeighbor(t_prev,TOP_RIGHT,bottom_id);
-        T.setNeighbor(t_prev,BOTTOM_RIGHT,bottom_id);
+        if(utility::isAbove(T.getTrapezoid(t_prev).getBottom(),tbottom.getTop().p1())){
+            T.setNeighbor(bottom_id,TOP_LEFT,t_prev);
+        }
+        if(!utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())){
+            T.setNeighbor(bottom_id,BOTTOM_LEFT,t_prev);
+        }
+        if(!utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getTop().p2())){
+            T.setNeighbor(t_prev,TOP_RIGHT,bottom_id);
+        }
+        if(utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())){
+            T.setNeighbor(t_prev,BOTTOM_RIGHT,bottom_id);
+        }
+
     }
     else{
-        T.setNeighbor(top_id,TOP_LEFT,t_prev);
-        T.setNeighbor(top_id,BOTTOM_LEFT,t_prev);
-        T.setNeighbor(t_prev,TOP_RIGHT,top_id);
-        T.setNeighbor(t_prev,BOTTOM_RIGHT,top_id);
+        if(utility::isAbove(ttop.getTop(),T.getTrapezoid(t_prev).getTop().p2())){
+            T.setNeighbor(top_id,TOP_LEFT,t_prev);
+        }
+        if(utility::isAbove(T.getTrapezoid(t_prev).getBottom(),ttop.getBottom().p1()) || T.getTrapezoid(t_prev).getBottom().p2() == ttop.getBottom().p1()){
+            T.setNeighbor(top_id,BOTTOM_LEFT,t_prev);
+        }
+        if(!utility::isAbove(ttop.getTop(),T.getTrapezoid(t_prev).getTop().p1())){
+            T.setNeighbor(t_prev,TOP_RIGHT,top_id);
+        }
+        if(utility::isAbove(ttop.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())){
+            T.setNeighbor(t_prev,BOTTOM_RIGHT,top_id);
+        }
     }
 
     if(merge_above && utility::isAbove(s,t_split.getRightp())){
-        t_merge = tbottom;
+        t_merge = T.getTrapezoid(bottom_id);
         merge_above = false;
         t_prev = top_id;
+        first = true;
     }
     else if(!merge_above && !utility::isAbove(s,t_split.getRightp()))
     {
-        t_merge = ttop;
+        t_merge = T.getTrapezoid(top_id);
         merge_above = true;
         t_prev = bottom_id;
+        first = true;
     }
     else{
         if(merge_above){
-            t_merge = ttop;
+            t_merge = T.getTrapezoid(top_id);
             bottom_id = trap_id;
             t_prev = bottom_id;
-            T.replaceTrapezoid(trap_id,tbottom);
+            first = false;
         }
         else{
-            t_merge = tbottom;
+            t_merge = T.getTrapezoid(bottom_id);
             top_id = trap_id;
             t_prev = top_id;
-            T.replaceTrapezoid(trap_id,ttop);
+            first = false;
         }
     }
     dagVector = updateDag(D,s,dag_id,top_id,bottom_id);
@@ -528,7 +550,7 @@ void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, s
  * @param next the id of the next Trapezoid that is intersected by the segment. This is necessary in order to avoid to update
  * his neighbors because new trapezoids will be generated in the next split
  */
-void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, size_t trap_id, bool left, bool& merge_above, Trapezoid & t_merge, size_t & t_prev, size_t next){
+void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, size_t trap_id, bool left, bool& merge_above, Trapezoid & t_merge, size_t & t_prev, size_t next, bool& first){
 
     char dummy;
     Trapezoid t_split, tother, ttop, tbottom;
@@ -569,28 +591,28 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
     if(left){
     ttop = Trapezoid(
                 s.p1(),
-                cross,
+                t_split.getRightp(),
                 cg3::Segment2d(p1t,t_split.getTop().p2()),
                 cg3::Segment2d(s.p1(),cross)
                 );
 
     //create the trapezoid below
     tbottom = Trapezoid(
-                p1b,
-                p2b,
+                s.p1(),
+                t_split.getRightp(),
                 cg3::Segment2d(s.p1(),cross),
                 cg3::Segment2d(p1b,t_split.getBottom().p2())
                 );
     }
     else{
         ttop = Trapezoid(
-                    cross,
+                    t_split.getLeftp(),
                     s.p2(),
                     cg3::Segment2d(t_split.getTop().p1(),p2t),
                     cg3::Segment2d(cross,s.p2()));
         tbottom = Trapezoid(
-                    p1b,
-                    p2b,
+                    t_split.getLeftp(),
+                    s.p2(),
                     cg3::Segment2d(cross,s.p2()),
                     cg3::Segment2d(t_split.getBottom().p1(),p2b)
                     );
@@ -673,9 +695,9 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
     }
     dagVector = updateDag(D,s,dag_id,top_id,bottom_id,other_id,left);
     if(left){
-        T.setDagId(other_id,dagVector[0]);
-        T.setDagId(top_id,dagVector[1]);
-        T.setDagId(bottom_id,dagVector[2]);
+        T.setDagId(other_id,dagVector[2]);
+        T.setDagId(top_id,dagVector[0]);
+        T.setDagId(bottom_id,dagVector[1]);
     }
     else{
         T.setDagId(top_id,dagVector[0]);
@@ -726,12 +748,16 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
         T.setNeighbor(bottom_id,BOTTOM_RIGHT,other_id); //the bottom right neighbor is the trapezoid to the right of the segment
 
         if(merge_above){
+            if(utility::isAbove(T.getTrapezoid(t_prev).getBottom(),tbottom.getTop().p1())){
             T.setNeighbor(bottom_id,TOP_LEFT,t_prev);
-            if(!utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getRightp())){
+            }
+            if(!utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())){
                 T.setNeighbor(bottom_id,BOTTOM_LEFT,t_prev);
             }
-            T.setNeighbor(t_prev,TOP_RIGHT,bottom_id);
-            if(utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getLeftp())){
+            if(!utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getTop().p2())){
+                T.setNeighbor(t_prev,TOP_RIGHT,bottom_id);
+            }
+            if(utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())){
                 T.setNeighbor(t_prev,BOTTOM_RIGHT,bottom_id);
             }
 
@@ -740,11 +766,15 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
             if(utility::isAbove(ttop.getTop(),T.getTrapezoid(t_prev).getTop().p2())){
                 T.setNeighbor(top_id,TOP_LEFT,t_prev);
             }
-            T.setNeighbor(top_id,BOTTOM_LEFT,t_prev);
-            if(!utility::isAbove(ttop.getTop(),T.getTrapezoid(t_prev).getTop().p1())){
+            if(utility::isAbove(T.getTrapezoid(t_prev).getBottom(),ttop.getBottom().p1()) || T.getTrapezoid(t_prev).getBottom().p2() == ttop.getBottom().p1()){
+                T.setNeighbor(top_id,BOTTOM_LEFT,t_prev);
+            }
+            if(!utility::isAbove(ttop.getTop(),T.getTrapezoid(t_prev).getTop().p1()) ){
                 T.setNeighbor(t_prev,TOP_RIGHT,top_id);
             }
-            T.setNeighbor(t_prev,BOTTOM_RIGHT,top_id);
+            if(utility::isAbove(ttop.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())){
+                T.setNeighbor(t_prev,BOTTOM_RIGHT,top_id);
+            }
         }
     }
 
@@ -757,16 +787,18 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
         T.replaceAllPositionNeighbor(BOTTOM_LEFT,trap_id,other_id,next);
     }
 
+
     if(left){
         if(utility::isAbove(s,t_split.getRightp())){
             t_merge = T.getTrapezoid(bottom_id);
             merge_above = false;
             t_prev = top_id;
-        }
-        else{
+            first = false;
+        }else{
             t_merge = T.getTrapezoid(top_id);
             merge_above = true;
             t_prev = bottom_id;
+            first = false;
         }
     }
 }
@@ -899,17 +931,18 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
  */
 void algorithms::multipleSplit(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, std::vector<Trapezoid> delta){
     bool merge_above = false;
+    bool first = true;
     size_t t_prev;
     Trapezoid t_merge;
     for(size_t i = 0; i < delta.size(); i++){
         if(i == 0){
-            splitin3(T,s,D,delta[0].getId(),true,merge_above,t_merge,t_prev,delta[1].getId());
+            splitin3(T,s,D,delta[0].getId(),true,merge_above,t_merge,t_prev,delta[1].getId(),first);
         }
         else if(i == delta.size() - 1){
-            splitin3(T,s,D,delta[delta.size()-1].getId(),false,merge_above,t_merge,t_prev,delta[i+1].getId());
+            splitin3(T,s,D,delta[delta.size()-1].getId(),false,merge_above,t_merge,t_prev,delta[i+1].getId(),first);
         }
         else{
-            splitin2(T,s,D,delta[i].getId(),merge_above,t_merge,t_prev,delta[i+1].getId());
+            splitin2(T,s,D,delta[i].getId(),merge_above,t_merge,t_prev,delta[i+1].getId(),first);
         }
     }
 

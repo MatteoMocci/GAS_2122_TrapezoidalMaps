@@ -19,8 +19,8 @@ namespace algorithms{
    size_t queryPoint(Dag dag, cg3::Point2d p);
 
    //split methods
-   void splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, size_t trap_id, bool& merge_above, Trapezoid& t_merge, size_t & t_prev, size_t next);
-   void splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, size_t trap_id, bool left, bool& merge_above, Trapezoid & t_merge, size_t & t_prev, size_t next);
+   void splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, size_t trap_id, bool& merge_above, Trapezoid& t_merge, size_t & t_prev, size_t next, bool& first);
+   void splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, size_t trap_id, bool left, bool& merge_above, Trapezoid & t_merge, size_t & t_prev, size_t next, bool& first);
    void splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, size_t trap_id);
    void multipleSplit(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, std::vector<Trapezoid> delta);
 
