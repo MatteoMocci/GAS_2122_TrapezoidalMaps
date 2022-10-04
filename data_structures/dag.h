@@ -2,7 +2,7 @@
 #define DAG_H
 
 #include "dag_node.h"
-
+#include "algorithms/utility.h"
 
 class Dag
 {

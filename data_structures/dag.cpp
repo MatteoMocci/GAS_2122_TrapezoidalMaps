@@ -194,7 +194,7 @@ void Dag::clearDag(){
  */
 void Dag::findSegment(cg3::Segment2d s, bool& found, size_t& index){
     for (size_t i = 0; i < sVector.size(); i++){
-        if(sVector[i] == s){
+        if(utility::pointEqual(sVector[i].p1(),s.p1()) && utility::pointEqual(sVector[i].p2(),s.p2())){
             index = i;
             found = true;
             return;
@@ -212,7 +212,7 @@ void Dag::findSegment(cg3::Segment2d s, bool& found, size_t& index){
  */
 void Dag::findPoint(cg3::Point2d p, bool& found, size_t& index){
     for (size_t i = 0; i < sVector.size(); i++){
-        if(pVector[i] == p){
+        if(utility::pointEqual(pVector[i],p)){
             index = i;
             found = true;
             return;

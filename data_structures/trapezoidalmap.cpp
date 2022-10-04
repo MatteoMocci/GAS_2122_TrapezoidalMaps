@@ -133,6 +133,98 @@ void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap
     }
 }
 
+void TrapezoidalMap::replaceAllPositionNeighborCoincident(size_t position, size_t old_trap, size_t top_trap, size_t bottom_trap){
+    for(size_t i = 0; i < t_map.size(); i++){
+        if (old_trap == t_map[i].getNeighbor(position) && i != top_trap && i != bottom_trap){
+            if(position == TOP_RIGHT){
+                if(utility::isAbove(t_map[i].getTop(),t_map[top_trap].getTop().p1())
+                      || utility::pointEqual(t_map[i].getTop().p1(),t_map[top_trap].getTop().p2())){
+                    setNeighbor(i,position,top_trap);
+                }else{
+                    setNeighbor(i,position,bottom_trap);
+                }
+            }
+
+            if(position == BOTTOM_RIGHT){
+                if(utility::isAbove(t_map[i].getBottom(),t_map[top_trap].getBottom().p1())
+                        || utility::pointEqual(t_map[i].getBottom().p1(),t_map[top_trap].getBottom().p2())){
+                   setNeighbor(i,position,top_trap);
+                }
+                else{
+                    setNeighbor(i,position,bottom_trap);
+                }
+            }
+
+            if(position == TOP_LEFT){
+                if(utility::isAbove(t_map[i].getTop(),t_map[top_trap].getTop().p2()) ||
+                        utility::pointEqual(t_map[top_trap].getTop().p2(),t_map[i].getTop().p1())){
+                    setNeighbor(i,position,top_trap);
+                }
+                else{
+                    setNeighbor(i,position,bottom_trap);
+                }
+            }
+
+            if(position == BOTTOM_LEFT){
+                if(utility::isAbove(t_map[top_trap].getBottom(),t_map[i].getBottom().p1())
+                        || utility::pointEqual(t_map[top_trap].getBottom().p2(),t_map[i].getBottom().p1())){
+                    setNeighbor(i,position,top_trap);
+                }
+                else{
+                    setNeighbor(i,position,bottom_trap);
+                }
+            }
+        }
+    }
+}
+
+
+void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t top_trap, size_t bottom_trap, size_t next){
+    for(size_t i = 0; i < t_map.size(); i++){
+        if (old_trap == t_map[i].getNeighbor(position) && i != top_trap && i != bottom_trap & i!= next){
+            if(position == TOP_RIGHT){
+                if(utility::isAbove(t_map[i].getTop(),t_map[top_trap].getTop().p1())
+                      || utility::pointEqual(t_map[i].getTop().p1(),t_map[top_trap].getTop().p2())){
+                    setNeighbor(i,position,top_trap);
+                }else{
+                    setNeighbor(i,position,bottom_trap);
+                }
+            }
+
+            if(position == BOTTOM_RIGHT){
+                if(utility::isAbove(t_map[i].getBottom(),t_map[top_trap].getBottom().p1())
+                        || utility::pointEqual(t_map[i].getBottom().p1(),t_map[top_trap].getBottom().p2())){
+                   setNeighbor(i,position,top_trap);
+                }
+                else{
+                    setNeighbor(i,position,bottom_trap);
+                }
+            }
+
+            if(position == TOP_LEFT){
+                if(utility::isAbove(t_map[i].getTop(),t_map[top_trap].getTop().p2()) ||
+                        utility::pointEqual(t_map[top_trap].getTop().p2(),t_map[i].getTop().p1())){
+                    setNeighbor(i,position,top_trap);
+                }
+                else{
+                    setNeighbor(i,position,bottom_trap);
+                }
+            }
+
+            if(position == BOTTOM_LEFT){
+                if(utility::isAbove(t_map[top_trap].getBottom(),t_map[i].getBottom().p1())
+                        || utility::pointEqual(t_map[top_trap].getBottom().p2(),t_map[i].getBottom().p1())){
+                    setNeighbor(i,position,top_trap);
+                }
+                else{
+                    setNeighbor(i,position,bottom_trap);
+                }
+            }
+        }
+    }
+}
+
+
 /**
  * @brief TrapezoidalMap::replaceAllPositionNeighbor
  * For all trapezoids in t_map, if the neighbor in the index position, is old_trap, then new_trap is replaced as neighbor for that position
@@ -164,26 +256,33 @@ void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap
  * trapezoid are not replaced, since that trapezoid will be splitted later.
  */
 void TrapezoidalMap::replaceAllPositionNeighbor(cg3::Segment2d s ,size_t position, size_t old_trap, size_t t_top, size_t t_bottom, size_t next){
-    cg3::Point2d vertex;
+    cg3::Point2d vertex, segment_end;
     for(size_t i = 0; i < t_map.size(); i++){
         if (i != next && old_trap == t_map[i].getNeighbor(position) && i != t_top && i != t_bottom){
             switch(position){
             case TOP_LEFT:
                 vertex = t_map[i].getTop().p1();
+                segment_end = s.p2();
                 break;
             case TOP_RIGHT:
                 vertex = t_map[i].getTop().p2();
+                segment_end = s.p1();
                 break;
             case BOTTOM_LEFT:
-                vertex = t_map[i].getLeftp();
+                vertex = t_map[i].getBottom().p1();
+                segment_end = s.p2();
                 break;
             case BOTTOM_RIGHT:
-                vertex = t_map[i].getRightp();
+                vertex = t_map[i].getBottom().p2();
+                segment_end = s.p1();
                 break;
             }
 
             if(utility::isAbove(s,vertex)){
                 t_map[i].setNeighbor(position,t_top);
+            }
+            else if(utility::pointEqual(vertex,segment_end)){
+                t_map[i].setNeighbor(position,SIZE_MAX);
             }
             else{
                 t_map[i].setNeighbor(position,t_bottom);
@@ -200,4 +299,8 @@ void TrapezoidalMap::replaceAllPositionNeighbor(cg3::Segment2d s ,size_t positio
  */
 void TrapezoidalMap::setDagId(size_t trap_id, size_t dag_id){
     t_map[trap_id].setDagId(dag_id);
+}
+
+void TrapezoidalMap::setNeighbors(size_t trap_id, size_t * neighbors){
+    t_map[trap_id].setNeighbors(neighbors);
 }

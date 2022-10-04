@@ -19,6 +19,7 @@ namespace algorithms{
    std::vector<size_t> updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, coincidence coincidence, size_t tsplit, size_t tother, size_t ttop, size_t tbottom);
    std::vector<size_t> updateDag(TrapezoidalMap& T, Dag& D, cg3::Segment2d s, coincidence coincidence, size_t tsplit, size_t ttop, size_t tbottom);
    size_t queryPoint(Dag dag, cg3::Point2d p);
+   size_t queryPoint(Dag dag, cg3::Point2d p1, cg3::Point2d p2);
 
    //split methods
    void splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, size_t trap_id, bool& merge_above, Trapezoid& t_merge, size_t & t_prev, size_t next, bool& first);
