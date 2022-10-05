@@ -620,8 +620,8 @@ size_t algorithms::queryPoint(Dag dag, cg3::Point2d p1, cg3::Point2d p2){
                 if(utility::isAbove(s,p1)){//check if the point is above the segment
                     d = dag.getElementInDVector(d.getLeftC()); //if yes, go to the left child
                 }
-                else if(utility::pointEqual(s.p1(),p1) || utility::pointEqual(s.p2(),p2)){
-                    if(utility::segmentGoesUp(p1,p2)){
+                else if(utility::pointEqual(s.p1(),p1) || utility::pointEqual(s.p2(),p1)){
+                    if(utility::slope(s.p1(),s.p2()) > utility::slope(p1,p2)){
                         d = dag.getElementInDVector(d.getLeftC());
                     }
                     else{
@@ -1166,7 +1166,7 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
             if(utility::isAbove(T.getTrapezoid(t_prev).getBottom(),ttop.getBottom().p1()) || T.getTrapezoid(t_prev).getBottom().p2() == ttop.getBottom().p1()){
                 T.setNeighbor(top_id,BOTTOM_LEFT,t_prev);
             }
-            if(!utility::isAbove(ttop.getTop(),T.getTrapezoid(t_prev).getTop().p1()) ){
+            if(!utility::isAbove(ttop.getTop(),T.getTrapezoid(t_prev).getTop().p2()) ){
                 T.setNeighbor(t_prev,TOP_RIGHT,top_id);
             }
             if(utility::isAbove(ttop.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())){
