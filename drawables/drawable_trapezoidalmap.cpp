@@ -44,3 +44,19 @@ double DrawableTrapezoidalMap::sceneRadius() const{
     const cg3::BoundingBox2& bbox = cg3::BoundingBox2();
     return bbox.diag();
 }
+
+double DrawableTrapezoidalMap::getLastQueried() const{
+    return lastQueried;
+}
+
+const cg3::Color DrawableTrapezoidalMap::getLastColor() const{
+    return lastColor;
+}
+
+void DrawableTrapezoidalMap::setLastQueried(size_t last){
+    lastQueried = last;
+}
+
+void DrawableTrapezoidalMap::setLastColor(cg3::Color color){
+    lastColor = color;
+}

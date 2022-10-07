@@ -23,18 +23,12 @@ bool utility::pointEqual(cg3::Point2d p1, cg3::Point2d p2){
     return (fabs(p1.x() - p2.x()) < 0.005f  && fabs(p1.y() - p2.y()) < 0.005f);
 }
 
-bool utility::segmentGoesUp(cg3::Point2d p1, cg3::Point2d p2){
-    cg3::Line2 slope_line = cg3::Line2(p1,p2);
-    float slope = slope_line.m();
-    if(slope >= 0){
-        return true;
-    }
-    else{
-        return false;
-    }
-}
 
 float utility::slope(cg3::Point2d p1, cg3::Point2d p2){
     cg3::Line2 slope_line = cg3::Line2(p1,p2);
     return slope_line.m();
+}
+
+float utility::slope(cg3::Segment2d s){
+    return slope(s.p1(),s.p2());
 }

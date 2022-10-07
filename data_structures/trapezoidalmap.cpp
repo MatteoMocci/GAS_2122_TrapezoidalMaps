@@ -117,177 +117,23 @@ void TrapezoidalMap::setNeighbor(size_t trap, size_t index, size_t rep){
     t_map[trap].setNeighbor(index,rep);
 }
 
-
-/**
- * @brief TrapezoidalMap::getAllTasNeighbor
- * For all trapezoids in t_map, if the neighbor in the index position, is old_trap, then new_trap is replaced as neighbor for that position
- * @param position the position to check if the trapezoid is neighbor
- * @param old_trap the id of the trapezoid to check if it is neighbor of all trapezoids
- * @param new_trap the id to replace when old_trap is found
- */
-void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t new_trap){
-    for(size_t i = 0; i < t_map.size(); i++){
-        if (old_trap == t_map[i].getNeighbor(position) && i != new_trap){
-            t_map[i].setNeighbor(position,new_trap);
-        }
-    }
-}
-
-void TrapezoidalMap::replaceAllPositionNeighborCoincident(size_t position, size_t old_trap, size_t top_trap, size_t bottom_trap){
-    for(size_t i = 0; i < t_map.size(); i++){
-        if (old_trap == t_map[i].getNeighbor(position) && i != top_trap && i != bottom_trap){
-            if(position == TOP_RIGHT){
-                if(utility::isAbove(t_map[i].getTop(),t_map[top_trap].getTop().p1())
-                      || utility::pointEqual(t_map[i].getTop().p1(),t_map[top_trap].getTop().p2())){
-                    setNeighbor(i,position,top_trap);
-                }else{
-                    setNeighbor(i,position,bottom_trap);
-                }
+void TrapezoidalMap::updateOldNeighbors(bool left, size_t curr_trap, size_t old_trap, size_t new_trap){
+    if (curr_trap != SIZE_MAX){
+        if(left){
+            if(getTrapezoid(curr_trap).getNeighbor(TOP_LEFT) == old_trap){
+                setNeighbor(curr_trap,TOP_LEFT,new_trap);
             }
-
-            if(position == BOTTOM_RIGHT){
-                if(utility::isAbove(t_map[i].getBottom(),t_map[top_trap].getBottom().p1())
-                        || utility::pointEqual(t_map[i].getBottom().p1(),t_map[top_trap].getBottom().p2())){
-                   setNeighbor(i,position,top_trap);
-                }
-                else{
-                    setNeighbor(i,position,bottom_trap);
-                }
-            }
-
-            if(position == TOP_LEFT){
-                if(utility::isAbove(t_map[i].getTop(),t_map[top_trap].getTop().p2()) ||
-                        utility::pointEqual(t_map[top_trap].getTop().p2(),t_map[i].getTop().p1())){
-                    setNeighbor(i,position,top_trap);
-                }
-                else{
-                    setNeighbor(i,position,bottom_trap);
-                }
-            }
-
-            if(position == BOTTOM_LEFT){
-                if(utility::isAbove(t_map[top_trap].getBottom(),t_map[i].getBottom().p1())
-                        || utility::pointEqual(t_map[top_trap].getBottom().p2(),t_map[i].getBottom().p1())){
-                    setNeighbor(i,position,top_trap);
-                }
-                else{
-                    setNeighbor(i,position,bottom_trap);
-                }
+            if(getTrapezoid(curr_trap).getNeighbor(BOTTOM_LEFT) == old_trap){
+                setNeighbor(curr_trap,BOTTOM_LEFT,new_trap);
             }
         }
-    }
-}
-
-
-void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t top_trap, size_t bottom_trap, size_t next){
-    for(size_t i = 0; i < t_map.size(); i++){
-        if (old_trap == t_map[i].getNeighbor(position) && i != top_trap && i != bottom_trap & i!= next){
-            if(position == TOP_RIGHT){
-                if(utility::isAbove(t_map[i].getTop(),t_map[top_trap].getTop().p1())
-                      || utility::pointEqual(t_map[i].getTop().p1(),t_map[top_trap].getTop().p2())){
-                    setNeighbor(i,position,top_trap);
-                }else{
-                    setNeighbor(i,position,bottom_trap);
-                }
+        else{
+            if(getTrapezoid(curr_trap).getNeighbor(TOP_RIGHT) == old_trap){
+                setNeighbor(curr_trap,TOP_RIGHT,new_trap);
             }
-
-            if(position == BOTTOM_RIGHT){
-                if(utility::isAbove(t_map[i].getBottom(),t_map[top_trap].getBottom().p1())
-                        || utility::pointEqual(t_map[i].getBottom().p1(),t_map[top_trap].getBottom().p2())){
-                   setNeighbor(i,position,top_trap);
-                }
-                else{
-                    setNeighbor(i,position,bottom_trap);
-                }
+            if(getTrapezoid(curr_trap).getNeighbor(BOTTOM_RIGHT) == old_trap){
+                setNeighbor(curr_trap,BOTTOM_RIGHT,new_trap);
             }
-
-            if(position == TOP_LEFT){
-                if(utility::isAbove(t_map[i].getTop(),t_map[top_trap].getTop().p2()) ||
-                        utility::pointEqual(t_map[top_trap].getTop().p2(),t_map[i].getTop().p1())){
-                    setNeighbor(i,position,top_trap);
-                }
-                else{
-                    setNeighbor(i,position,bottom_trap);
-                }
-            }
-
-            if(position == BOTTOM_LEFT){
-                if(utility::isAbove(t_map[top_trap].getBottom(),t_map[i].getBottom().p1())
-                        || utility::pointEqual(t_map[top_trap].getBottom().p2(),t_map[i].getBottom().p1())){
-                    setNeighbor(i,position,top_trap);
-                }
-                else{
-                    setNeighbor(i,position,bottom_trap);
-                }
-            }
-        }
-    }
-}
-
-
-/**
- * @brief TrapezoidalMap::replaceAllPositionNeighbor
- * For all trapezoids in t_map, if the neighbor in the index position, is old_trap, then new_trap is replaced as neighbor for that position
- * @param position the position to check if the trapezoid is neighbor
- * @param old_trap the id of the trapezoid to check if it is neighbor of all trapezoids
- * @param new_trap the id to replace when old_trap is found
- * @param next the id to the next trapezoid intersected by the segment. This way, the neighbors of this trapezoid
- * are not replaced since it will be splitted afterwards.
- */
-void TrapezoidalMap::replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t new_trap, size_t next){
-    for(size_t i = 0; i < t_map.size(); i++){
-        if (i!= next && old_trap == t_map[i].getNeighbor(position) && i != new_trap){
-            t_map[i].setNeighbor(position,new_trap);
-        }
-    }
-}
-
-/**
- * @brief TrapezoidalMap::replaceAllPositionNeighbor
- * This is an override of the replaceAllPositionNeighbor method that checks if a particular vertex of the trapezoid
- * (depending on the position) is above or below the segment s. If is above, t_top is set as neighbor, otherwise
- * t_bottom is set as neighbor
- * @param s the segment s that is used to establish if t_top or t_bottom has to be set as neighbor
- * @param position the position to check if the trapezoid is neighbor
- * @param old_trap the id of the trapezoid to check if it is neighbor of all trapezoids
- * @param t_top the id of the trapezoid above the segment
- * @param t_bottom the id of the trapezoid below the segment
- * @param next the id of the next trapezoid to be intersected by the segment. This way, the neighbors of that
- * trapezoid are not replaced, since that trapezoid will be splitted later.
- */
-void TrapezoidalMap::replaceAllPositionNeighbor(cg3::Segment2d s ,size_t position, size_t old_trap, size_t t_top, size_t t_bottom, size_t next){
-    cg3::Point2d vertex, segment_end;
-    for(size_t i = 0; i < t_map.size(); i++){
-        if (i != next && old_trap == t_map[i].getNeighbor(position) && i != t_top && i != t_bottom){
-            switch(position){
-            case TOP_LEFT:
-                vertex = t_map[i].getTop().p1();
-                segment_end = s.p2();
-                break;
-            case TOP_RIGHT:
-                vertex = t_map[i].getTop().p2();
-                segment_end = s.p1();
-                break;
-            case BOTTOM_LEFT:
-                vertex = t_map[i].getBottom().p1();
-                segment_end = s.p2();
-                break;
-            case BOTTOM_RIGHT:
-                vertex = t_map[i].getBottom().p2();
-                segment_end = s.p1();
-                break;
-            }
-
-            if(utility::isAbove(s,vertex)){
-                t_map[i].setNeighbor(position,t_top);
-            }
-            else if(utility::pointEqual(vertex,segment_end)){
-                t_map[i].setNeighbor(position,SIZE_MAX);
-            }
-            else{
-                t_map[i].setNeighbor(position,t_bottom);
-            }
-
         }
     }
 }

@@ -18,7 +18,14 @@ public:
     cg3::Point3d sceneCenter() const;
     double sceneRadius() const;
 
+    double getLastQueried() const;
+    const cg3::Color getLastColor() const;
+    void setLastQueried(size_t last);
+    void setLastColor(cg3::Color color);
+
 private:
+    int lastQueried = -1;
+    cg3::Color lastColor = cg3::Color(0,0,0);
 
 };
 

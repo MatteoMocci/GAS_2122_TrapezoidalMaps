@@ -26,17 +26,7 @@ class TrapezoidalMap
         size_t getNeighbor(size_t trap, size_t index);
         void setNeighbor(size_t trap, size_t index, size_t rep);
         void setNeighbors(size_t trap_id, size_t * neighbors);
-        std::vector<size_t> getAllTasNeighbor(size_t position, size_t trap);
-        void replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t new_trap);
-        void replaceAllPositionNeighbor(cg3::Segment2d s ,size_t position, size_t old_trap, size_t t_top, size_t t_bottom );
-        void replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t new_trap, size_t next);
-        void replaceAllPositionNeighbor(cg3::Segment2d s ,size_t position, size_t old_trap, size_t t_top, size_t t_bottom, size_t next);
-        void replaceAllPositionNeighbor(size_t position, size_t old_trap, size_t top_trap, size_t bottom_trap, size_t next);
-        void replaceAllPositionNeighborCoincident(size_t position, size_t old_trap, size_t top_trap, size_t bottom_trap);
-
-
-
-
+        void updateOldNeighbors(bool left, size_t curr_trap, size_t old_trap, size_t new_trap);
 
     private:
         std::vector<Trapezoid> t_map; //the vector containing the trapezoids

@@ -1,6 +1,4 @@
 #include "trapezoid.h"
-int Trapezoid::lastQueried = -1;
-cg3::Color Trapezoid::lastColor = cg3::Color(0,0,0);
 /**
  * @brief Trapezoid::Trapezoid
  * This constructor initializes a trapezoid by initializing each of the four attributes with the values in input.

@@ -22,8 +22,8 @@ std::vector<Trapezoid> algorithms::followSegment(TrapezoidalMap T, Dag D, cg3::S
     size_t i0 = queryPoint(D, p, q);//query the dag with the left endpoint to find the first intersected trapezoid
     delta.push_back(T.getTrapezoid(D.getElementInDVector(i0).getEntityId())); //add in the vector the first trapezoid found
     size_t j = 0; //variable used in the while loop
-    while(q.x() > delta[j].getRightp().x()){//while the right endpoint lies to the right of rightp(Δj)
-        if(utility::isAbove(s,delta[j].getRightp()) || utility::pointEqual(s.p1(),delta[j].getRightp())){//if rightp(Δj) lies above si
+    while(q.x() > delta[j].getRightp().x() && j < delta.size()){//while the right endpoint lies to the right of rightp(Δj)
+        if(utility::isAbove(s,delta[j].getRightp())){//if rightp(Δj) lies above si
             if(delta[j].getNeighbor(BOTTOM_RIGHT) != SIZE_MAX){
                 delta.push_back(T.getTrapezoid(delta[j].getNeighbor(BOTTOM_RIGHT)));
             }
@@ -558,31 +558,6 @@ std::vector<size_t> algorithms::updateDag(TrapezoidalMap& T, Dag& D, cg3::Segmen
     return tId;
 }
 
-/**
- * @brief algorithms::getIndex
- * This method returns the index in which an element of type T inside a vector of type T
- * @param v the vector to check
- * @param K the element to find in the vector
- * @return the position of the element in the vector, -1 if the element has not been found
- */
-template<typename T>
-size_t algorithms::getIndex(std::vector<T> v, T K)
-{
-    auto it = find(v.begin(), v.end(), K);
-
-    // If element was found
-    if (it != v.end())
-    {
-
-        // calculating the index of K
-        return it - v.begin();
-
-    }
-    else {
-        return -1;
-    }
-}
-
 size_t algorithms::queryPoint(Dag dag, cg3::Point2d p){
     return queryPoint(dag,p,p);
 }
@@ -621,7 +596,7 @@ size_t algorithms::queryPoint(Dag dag, cg3::Point2d p1, cg3::Point2d p2){
                     d = dag.getElementInDVector(d.getLeftC()); //if yes, go to the left child
                 }
                 else if(utility::pointEqual(s.p1(),p1) || utility::pointEqual(s.p2(),p1)){
-                    if(utility::slope(s.p1(),s.p2()) > utility::slope(p1,p2)){
+                    if(utility::slope(s.p1(),s.p2()) < utility::slope(p1,p2)){
                         d = dag.getElementInDVector(d.getLeftC());
                     }
                     else{
@@ -740,18 +715,11 @@ void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, s
 
         }
 
-
     if(merge_above){
-        T.replaceAllPositionNeighbor(s,TOP_LEFT,trap_id,top_id,bottom_id,next);
-        T.replaceAllPositionNeighbor(s,BOTTOM_LEFT,trap_id,top_id,bottom_id,next);
-    }
-    else{
-        T.replaceAllPositionNeighbor(s,TOP_LEFT,trap_id,top_id,bottom_id,next);
-        T.replaceAllPositionNeighbor(s,BOTTOM_LEFT,trap_id,top_id,bottom_id,next);
-    }
-
-    if(merge_above){
-        if(utility::isAbove(T.getTrapezoid(t_prev).getBottom(),tbottom.getTop().p1())){
+        if(utility::isAbove(T.getTrapezoid(t_prev).getBottom(),tbottom.getTop().p1())
+            || cg3::internal::isBetween(T.getTrapezoid(t_prev).getBottom().p1(),
+                    T.getTrapezoid(t_prev).getBottom().p2(),
+                    tbottom.getTop().p1(),0)){
             T.setNeighbor(bottom_id,TOP_LEFT,t_prev);
         }
         if(!utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())){
@@ -760,22 +728,30 @@ void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, s
         if(!utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getTop().p2())){
             T.setNeighbor(t_prev,TOP_RIGHT,bottom_id);
         }
-        if(utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())){
+        if(utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())
+                || cg3::internal::isBetween(tbottom.getBottom().p1(), tbottom.getBottom().p2(),
+                                            T.getTrapezoid(t_prev).getBottom().p2(),0)){
             T.setNeighbor(t_prev,BOTTOM_RIGHT,bottom_id);
         }
 
     }
     else{
-        if(utility::isAbove(ttop.getTop(),T.getTrapezoid(t_prev).getTop().p2())){
+        if(utility::isAbove(ttop.getTop(),T.getTrapezoid(t_prev).getTop().p2())
+                || cg3::internal::isBetween(ttop.getTop().p1(), ttop.getTop().p2(), T.getTrapezoid(t_prev).getTop().p2(),0)){
             T.setNeighbor(top_id,TOP_LEFT,t_prev);
         }
-        if(utility::isAbove(T.getTrapezoid(t_prev).getBottom(),ttop.getBottom().p1()) || T.getTrapezoid(t_prev).getBottom().p2() == ttop.getBottom().p1()){
+        if(utility::isAbove(T.getTrapezoid(t_prev).getBottom(),ttop.getBottom().p1())
+                || cg3::internal::isBetween(T.getTrapezoid(t_prev).getBottom().p1(),
+                                                     T.getTrapezoid(t_prev).getBottom().p2(),
+                                                     ttop.getBottom().p1(),0)){
             T.setNeighbor(top_id,BOTTOM_LEFT,t_prev);
         }
-        if(!utility::isAbove(ttop.getTop(),T.getTrapezoid(t_prev).getTop().p1())){
+        if(!utility::isAbove(ttop.getTop(),T.getTrapezoid(t_prev).getTop().p2())){
             T.setNeighbor(t_prev,TOP_RIGHT,top_id);
         }
-        if(utility::isAbove(ttop.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())){
+
+        if(utility::isAbove(ttop.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())
+                            || cg3::internal::isBetween(ttop.getBottom().p1(), ttop.getBottom().p2(), T.getTrapezoid(t_prev).getBottom().p2(),0)){
             T.setNeighbor(t_prev,BOTTOM_RIGHT,top_id);
         }
     }
@@ -810,6 +786,19 @@ void algorithms::splitin2(TrapezoidalMap& T, const cg3::Segment2d& s, Dag & D, s
             t_prev = top_id;
             first = false;
         }
+
+        if(merge_above){
+            if(!utility::pointEqual(t_split.getBottom().p2(), t_split.getRightp())){
+                T.setNeighbor(bottom_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+                T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT], trap_id, bottom_id);
+            }
+        }
+        else{
+            if(!utility::pointEqual(t_split.getTop().p2(), t_split.getRightp())){
+                T.setNeighbor(top_id,TOP_RIGHT,old_neighbors[TOP_RIGHT]);
+                T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT], trap_id, bottom_id);
+            }
+        }
     }
 }
 
@@ -836,7 +825,7 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
     coincidence coincidence;
     bool coincident_above = false;
     bool side_coincident = false;
-    char dummy;
+    char dummy, d1t, d1b, d2t, d2b;
     Trapezoid t_split, tother, ttop, tbottom;
     t_split = T.getTrapezoid(trap_id);
     size_t dag_id = t_split.getDagId();
@@ -864,24 +853,24 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
     //the four points of intersections: the intersection with top and bottom of the two projection segments
 
     //calculate the intersections
-    cg3::checkSegmentIntersection2(t_split.getTop(),proj1,dummy,0,p1t);
-    cg3::checkSegmentIntersection2(t_split.getBottom(),proj1,dummy,0,p1b);
-    cg3::checkSegmentIntersection2(t_split.getTop(),proj2,dummy,0,p2t);
-    cg3::checkSegmentIntersection2(t_split.getBottom(),proj2,dummy,0,p2b);
+    cg3::checkSegmentIntersection2(t_split.getTop(),proj1,d1t,0,p1t);
+    cg3::checkSegmentIntersection2(t_split.getBottom(),proj1,d1b,0,p1b);
+    cg3::checkSegmentIntersection2(t_split.getTop(),proj2,d2t,0,p2t);
+    cg3::checkSegmentIntersection2(t_split.getBottom(),proj2,d2b,0,p2b);
 
-    if(p1t.x() == p1t.y()){
+    if(d1t == '0'){
         p1t = t_split.getTop().p1();
     }
 
-    if(p1b.x() == p1b.y()){
+    if(d1b == '0'){
         p1b = t_split.getBottom().p1();
     }
 
-    if(p2t.x() == p2t.y()){
+    if(d2t == '0'){
         p2t = t_split.getTop().p2();
     }
 
-    if(p2b.x() == p2b.y()){
+    if(d2b == '0'){
         p2b = t_split.getBottom().p2();
     }
 
@@ -1017,16 +1006,6 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
             bottom_id = trap_id;
             tbottom.setNeighbors(t_split.getNeighbors());
 
-            //tbottom.setNeighbor(TOP_LEFT,t_split.getNeighbor(BOTTOM_LEFT));
-            /*
-            if(!utility::isAbove(s,tbottom.getTop().p1())){
-                tbottom.setNeighbor(TOP_LEFT,t_split.getNeighbor(BOTTOM_LEFT));
-            }
-
-            if(utility::isAbove(s,tbottom.getLeftp())){
-                tbottom.setNeighbor(BOTTOM_LEFT,t_split.getNeighbor(TOP_LEFT));
-            }
-            */
             T.replaceTrapezoid(trap_id,tbottom);
             if(coincidence == NONE){
                 other_id = T.insertTrapezoid(tother);
@@ -1146,7 +1125,7 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
 
         if(merge_above){
             if(utility::isAbove(T.getTrapezoid(t_prev).getBottom(),tbottom.getTop().p1())){
-            T.setNeighbor(bottom_id,TOP_LEFT,t_prev);
+                T.setNeighbor(bottom_id,TOP_LEFT,t_prev);
             }
             if(!utility::isAbove(tbottom.getBottom(),T.getTrapezoid(t_prev).getBottom().p2())){
                 T.setNeighbor(bottom_id,BOTTOM_LEFT,t_prev);
@@ -1177,22 +1156,110 @@ void algorithms::splitin3(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
 
     if(left){
         if(coincidence == NONE){
-            T.replaceAllPositionNeighbor(s,TOP_LEFT,trap_id,top_id,bottom_id,next);
-            T.replaceAllPositionNeighbor(s,BOTTOM_LEFT,trap_id,top_id,bottom_id,next);
+            if(merge_above){
+                if(!utility::pointEqual(t_split.getBottom().p2(),t_split.getRightp())){
+                    T.updateOldNeighbors(left,old_neighbors[BOTTOM_RIGHT],trap_id,bottom_id);
+                }
+            }
+            else{
+                if(!utility::pointEqual(t_split.getTop().p2(),t_split.getRightp())){
+                    T.updateOldNeighbors(left,old_neighbors[TOP_RIGHT],trap_id,top_id);
+                }
+            }
         }
         else{
-            T.replaceAllPositionNeighbor(s,TOP_RIGHT,trap_id,top_id,SIZE_MAX,trap_id);
-            T.replaceAllPositionNeighbor(s,BOTTOM_RIGHT,trap_id,SIZE_MAX,bottom_id,trap_id);
+            if(utility::pointEqual(ttop.getBottom().p1(),t_split.getTop().p1())){
+                if(merge_above){
+                    if(!utility::pointEqual(t_split.getBottom().p2(),t_split.getRightp())){
+                        T.setNeighbor(bottom_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+                        T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,bottom_id);
+                    }
+                    T.setNeighbor(bottom_id,TOP_LEFT,old_neighbors[TOP_LEFT]);
+                    T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id,bottom_id);
+                }
+                else{
+                    if(!utility::pointEqual(t_split.getTop().p2(),t_split.getRightp())){
+                        T.setNeighbor(top_id,TOP_RIGHT,old_neighbors[TOP_RIGHT]);
+                        T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,top_id);
+                    }
+                    T.setNeighbor(bottom_id,TOP_LEFT,old_neighbors[BOTTOM_LEFT]);
+                    T.setNeighbor(bottom_id,BOTTOM_LEFT,old_neighbors[BOTTOM_LEFT]);
+                    T.updateOldNeighbors(false,old_neighbors[BOTTOM_LEFT],trap_id,bottom_id);
+                }
+            }
+            else if(utility::pointEqual(tbottom.getTop().p1(), t_split.getBottom().p1())){
+                if(merge_above){
+                    if(!utility::pointEqual(t_split.getBottom().p2(),t_split.getRightp())){
+                        T.setNeighbor(bottom_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+                        T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,bottom_id);
+                    }
+                    T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id,top_id);
+                }
+                else{
+                    if(!utility::pointEqual(t_split.getTop().p2(),t_split.getRightp())){
+                        T.setNeighbor(top_id,TOP_RIGHT,old_neighbors[TOP_RIGHT]);
+                        T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,top_id);
+                    }
+                    T.setNeighbor(top_id,BOTTOM_LEFT,old_neighbors[TOP_LEFT]);
+                    T.updateOldNeighbors(false,old_neighbors[BOTTOM_LEFT],trap_id,bottom_id);
+                }
+            }
+            else{
+                if(merge_above){
+                    if(!utility::pointEqual(t_split.getBottom().p2(),t_split.getRightp())){
+                        T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,bottom_id);
+                    }
+                    T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id,top_id);
+                }
+                else{
+                    if(!utility::pointEqual(t_split.getTop().p2(),t_split.getRightp())){
+                        T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,top_id);
+                    }
+                    T.updateOldNeighbors(false,old_neighbors[BOTTOM_LEFT],trap_id,bottom_id);
+                }
+            }
+
         }
     }
     else{
         if(coincidence == NONE){
-            T.replaceAllPositionNeighbor(TOP_LEFT,trap_id,other_id,next);
-            T.replaceAllPositionNeighbor(BOTTOM_LEFT,trap_id,other_id,next);
+            if(merge_above){
+                if(!utility::pointEqual(t_split.getBottom().p1(),t_split.getRightp())){
+                    T.updateOldNeighbors(false,old_neighbors[BOTTOM_LEFT],trap_id,bottom_id);
+                }
+            }
+            else{
+                if(!utility::pointEqual(t_split.getTop().p1(),t_split.getRightp())){
+                    T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id,top_id);
+                }
+            }
+            T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,other_id);
+            T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,other_id);
         }
         else{
-            T.replaceAllPositionNeighbor(s,TOP_LEFT,trap_id,top_id,SIZE_MAX,trap_id);
-            T.replaceAllPositionNeighbor(s,BOTTOM_LEFT,trap_id,SIZE_MAX,bottom_id,trap_id);
+            if(merge_above){
+                if(!utility::pointEqual(t_split.getBottom().p1(),T.getTrapezoid(t_prev).getRightp())){
+                    T.updateOldNeighbors(false,old_neighbors[BOTTOM_LEFT],trap_id,bottom_id);
+                }
+            }
+            else{
+                if(!utility::pointEqual(t_split.getTop().p1(),T.getTrapezoid(t_prev).getRightp())){
+                    T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id,top_id);
+                }
+            }
+
+            if(utility::pointEqual(ttop.getTop().p2(),ttop.getBottom().p2())){
+                T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,bottom_id);
+                T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,bottom_id);
+            }
+            else if(utility::pointEqual(tbottom.getTop().p2(),tbottom.getBottom().p2())){
+                T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,top_id);
+                T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,top_id);
+            }
+            else{
+                T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,top_id);
+                T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,bottom_id);
+            }
         }
     }
 
@@ -1226,7 +1293,8 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
     coincidence c = NONE;
     bool coincident_above = false;
     bool side_coincident = false;
-    char dummy;
+    char d1t, d1b, d2t, d2b;
+    bool topLeftDegen, topRightDegen, bottomLeftDegen, bottomRightDegen;
     Trapezoid t_split = T.getTrapezoid(trap_id);
     size_t dag_id = t_split.getDagId();
     std::vector<size_t> dagVector;
@@ -1245,25 +1313,25 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
     //the four points of intersections: the intersection with top and bottom of the two projection segments
 
     //calculate the intersections
-    cg3::checkSegmentIntersection2(t_split.getTop(),proj1,dummy,0,p1t);
-    cg3::checkSegmentIntersection2(t_split.getBottom(),proj1,dummy,0,p1b);
-    cg3::checkSegmentIntersection2(t_split.getTop(),proj2,dummy,0,p2t);
-    cg3::checkSegmentIntersection2(t_split.getBottom(),proj2,dummy,0,p2b);
+    cg3::checkSegmentIntersection2(t_split.getTop(),proj1,d1t,0,p1t);
+    cg3::checkSegmentIntersection2(t_split.getBottom(),proj1,d1b,0,p1b);
+    cg3::checkSegmentIntersection2(t_split.getTop(),proj2,d2t,0,p2t);
+    cg3::checkSegmentIntersection2(t_split.getBottom(),proj2,d2b,0,p2b);
 
-    if(p1t.x() == p1t.y()){
-        p1t = cg3::Point2d(s.p1().x(),t_split.getTop().p1().y());
+    if(d1t == '0'){
+        p1t = t_split.getTop().p1();
     }
 
-    if(p1b.x() == p1b.y()){
-        p1b = cg3::Point2d(s.p1().x(),t_split.getBottom().p1().y());
+    if(d1b == '0'){
+        p1b = t_split.getBottom().p1();
     }
 
-    if(p2t.x() == p2t.y()){
-        p2t = cg3::Point2d(s.p2().x(),t_split.getTop().p2().y());
+    if(d2t == '0'){
+        p2t = t_split.getTop().p2();
     }
 
-    if(p2b.x() == p2b.y()){
-       p2b = cg3::Point2d(s.p2().x(),t_split.getBottom().p2().y());
+    if(d2b == '0'){
+        p2b = t_split.getBottom().p2();
     }
 
     //create the left trapezoid
@@ -1332,9 +1400,6 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
         side_coincident = true;
     }
 
-
-
-
     if(utility::pointEqual(ttop.getTop().p2(),ttop.getBottom().p2())){
         if(c != LEFT){
             c = RIGHT;
@@ -1371,20 +1436,6 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
         right_id = T.insertTrapezoid(tright);
     }
 
-    //all trapezoids that had tsplit as lower/upper left neighbor now have tright
-    if(T.getTsize() > 4 && c== NONE){
-        T.replaceAllPositionNeighbor(TOP_LEFT,trap_id,right_id);
-        T.replaceAllPositionNeighbor(BOTTOM_LEFT,trap_id,right_id);
-    }
-    else if (c == RIGHT){
-        T.replaceAllPositionNeighbor(s,TOP_LEFT,trap_id,top_id,SIZE_MAX,trap_id);
-        T.replaceAllPositionNeighbor(s,BOTTOM_LEFT,trap_id,SIZE_MAX,bottom_id,trap_id);
-    }
-    else if (c == LEFT){
-        T.replaceAllPositionNeighbor(s,TOP_RIGHT,trap_id,top_id,SIZE_MAX,trap_id);
-        T.replaceAllPositionNeighbor(s,BOTTOM_RIGHT,trap_id,SIZE_MAX,bottom_id,trap_id);
-    }
-
     if(c != LEFT && c != BOTH){
     //set neighbors of left trapezoid;
         T.setNeighbor(left_id,TOP_LEFT,old_neighbors[TOP_LEFT]);
@@ -1411,28 +1462,6 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
         T.setNeighbor(right_id,BOTTOM_LEFT,bottom_id);  //the bottom right neighbor is the trapezoid below the segment
         T.setNeighbor(right_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
     //top-right and bottom-right are the same of the old trapezoid
-    }
-    else{
-        if(coincident_above){
-            T.setNeighbor(top_id,TOP_RIGHT,SIZE_MAX);
-            T.setNeighbor(top_id,BOTTOM_RIGHT,SIZE_MAX);
-        }
-        else if(side_coincident && c == LEFT){
-            T.setNeighbor(top_id,TOP_LEFT,old_neighbors[TOP_LEFT]);
-            T.setNeighbor(top_id,BOTTOM_LEFT,SIZE_MAX);
-            T.setNeighbor(bottom_id,TOP_LEFT,SIZE_MAX);
-            T.setNeighbor(bottom_id,BOTTOM_LEFT,old_neighbors[BOTTOM_LEFT]);
-        }
-        else if(side_coincident && c == RIGHT){
-            T.setNeighbor(top_id,TOP_RIGHT,old_neighbors[TOP_RIGHT]);
-            T.setNeighbor(top_id,BOTTOM_RIGHT,SIZE_MAX);
-            T.setNeighbor(bottom_id,TOP_RIGHT,SIZE_MAX);
-            T.setNeighbor(bottom_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
-        }
-        else{
-            T.setNeighbor(top_id,TOP_RIGHT,SIZE_MAX);
-            T.setNeighbor(bottom_id,BOTTOM_RIGHT,SIZE_MAX);
-        }
     }
 
     //set neighbors of top trapezoid
@@ -1461,6 +1490,193 @@ void algorithms::splitin4(TrapezoidalMap& T, const cg3::Segment2d& s, Dag& D, si
     }
     if(c!= RIGHT && c != BOTH){
         T.setNeighbor(bottom_id,BOTTOM_RIGHT,right_id); //the bottom right neighbor is the trapezoid to the right of the segment
+    }
+
+    topLeftDegen = utility::pointEqual(ttop.getTop().p1(), ttop.getBottom().p1());
+    topRightDegen = utility::pointEqual(ttop.getTop().p2(), ttop.getBottom().p2());
+    bottomLeftDegen = utility::pointEqual(tbottom.getTop().p1(), tbottom.getBottom().p1());
+    bottomRightDegen = utility::pointEqual(tbottom.getTop().p2(), tbottom.getBottom().p2());
+
+    //all trapezoids that had tsplit as lower/upper left neighbor now have tright
+    if(T.getTsize() > 4 && c== NONE){
+        T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,right_id);
+        T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,right_id);
+    }
+    else if(c == LEFT){
+        if(bottomLeftDegen){
+            T.setNeighbor(bottom_id,TOP_LEFT,SIZE_MAX);
+            T.setNeighbor(bottom_id,TOP_RIGHT,right_id);
+            T.setNeighbor(bottom_id,BOTTOM_LEFT,SIZE_MAX);
+            T.setNeighbor(bottom_id,BOTTOM_RIGHT,right_id);
+
+            T.setNeighbor(top_id,TOP_LEFT,old_neighbors[TOP_LEFT]);
+            T.setNeighbor(top_id,TOP_RIGHT,right_id);
+            T.setNeighbor(top_id,BOTTOM_LEFT,old_neighbors[BOTTOM_LEFT]);
+            T.setNeighbor(top_id,BOTTOM_RIGHT,right_id);
+
+            T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id, top_id);
+            T.updateOldNeighbors(false,old_neighbors[BOTTOM_LEFT],trap_id, top_id);
+        }
+        else if(topLeftDegen){
+            T.setNeighbor(top_id,TOP_LEFT,SIZE_MAX);
+            T.setNeighbor(top_id,TOP_RIGHT,right_id);
+            T.setNeighbor(top_id,BOTTOM_LEFT,SIZE_MAX);
+            T.setNeighbor(top_id,BOTTOM_RIGHT,right_id);
+
+            T.setNeighbor(bottom_id,TOP_LEFT,old_neighbors[TOP_LEFT]);
+            T.setNeighbor(bottom_id,TOP_RIGHT,right_id);
+            T.setNeighbor(bottom_id,BOTTOM_LEFT,old_neighbors[BOTTOM_LEFT]);
+            T.setNeighbor(bottom_id,BOTTOM_RIGHT,right_id);
+
+            T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id,bottom_id);
+            T.updateOldNeighbors(false,old_neighbors[BOTTOM_LEFT],trap_id,bottom_id);
+        }
+        else{
+            T.setNeighbor(top_id,TOP_LEFT,old_neighbors[TOP_LEFT]);
+            T.setNeighbor(top_id,TOP_RIGHT,right_id);
+            T.setNeighbor(top_id,BOTTOM_LEFT,old_neighbors[TOP_LEFT]);
+            T.setNeighbor(top_id,BOTTOM_RIGHT,right_id);
+
+            T.setNeighbor(bottom_id,TOP_LEFT,old_neighbors[BOTTOM_LEFT]);
+            T.setNeighbor(bottom_id,TOP_RIGHT,right_id);
+            T.setNeighbor(bottom_id,BOTTOM_LEFT,old_neighbors[BOTTOM_LEFT]);
+            T.setNeighbor(bottom_id,BOTTOM_RIGHT,right_id);
+
+            T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id,top_id);
+            T.updateOldNeighbors(false,old_neighbors[BOTTOM_LEFT],trap_id,bottom_id);
+        }
+    }
+    else if(c == RIGHT){
+        if(bottomRightDegen){
+            T.setNeighbor(bottom_id,TOP_LEFT,left_id);
+            T.setNeighbor(bottom_id,TOP_RIGHT,SIZE_MAX);
+            T.setNeighbor(bottom_id,BOTTOM_LEFT,left_id);
+            T.setNeighbor(bottom_id,BOTTOM_RIGHT,SIZE_MAX);
+
+            T.setNeighbor(top_id,TOP_LEFT,left_id);
+            T.setNeighbor(top_id,TOP_RIGHT,old_neighbors[TOP_RIGHT]);
+            T.setNeighbor(top_id,BOTTOM_LEFT,left_id);
+            T.setNeighbor(top_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+
+
+            T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,top_id);
+            T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,top_id);
+        }
+        else if(topRightDegen){
+            T.setNeighbor(top_id,TOP_LEFT,left_id);
+            T.setNeighbor(top_id,TOP_RIGHT,SIZE_MAX);
+            T.setNeighbor(top_id,BOTTOM_LEFT,left_id);
+            T.setNeighbor(top_id,BOTTOM_RIGHT,SIZE_MAX);
+
+            T.setNeighbor(bottom_id,TOP_LEFT,left_id);
+            T.setNeighbor(bottom_id,TOP_RIGHT,old_neighbors[TOP_RIGHT]);
+            T.setNeighbor(bottom_id,BOTTOM_LEFT,left_id);
+            T.setNeighbor(bottom_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+
+            T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,bottom_id);
+            T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,bottom_id);
+        }
+        else{
+            T.setNeighbor(top_id,TOP_LEFT,left_id);
+            T.setNeighbor(top_id,TOP_RIGHT,old_neighbors[TOP_RIGHT]);
+            T.setNeighbor(top_id,BOTTOM_LEFT,left_id);
+            T.setNeighbor(top_id,BOTTOM_RIGHT,old_neighbors[TOP_RIGHT]);
+
+            T.setNeighbor(bottom_id,TOP_LEFT,left_id);
+            T.setNeighbor(bottom_id,TOP_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+            T.setNeighbor(bottom_id,BOTTOM_LEFT,left_id);
+            T.setNeighbor(bottom_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+
+            T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,top_id);
+            T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,bottom_id);
+        }
+    }
+    else if(c == BOTH){
+
+        if(bottomLeftDegen && topRightDegen){
+            T.setNeighbor(top_id,TOP_LEFT, old_neighbors[TOP_LEFT]);
+            T.setNeighbor(top_id,TOP_RIGHT, SIZE_MAX);
+            T.setNeighbor(top_id,BOTTOM_LEFT, old_neighbors[TOP_LEFT]);
+            T.setNeighbor(top_id,BOTTOM_RIGHT, SIZE_MAX);
+
+            T.setNeighbor(bottom_id,TOP_LEFT, SIZE_MAX);
+            T.setNeighbor(bottom_id,TOP_RIGHT, old_neighbors[BOTTOM_RIGHT]);
+            T.setNeighbor(bottom_id,BOTTOM_LEFT, SIZE_MAX);
+            T.setNeighbor(bottom_id,BOTTOM_RIGHT, old_neighbors[BOTTOM_RIGHT]);
+
+            T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id,top_id);
+            T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,bottom_id);
+        }
+        else if(bottomRightDegen && topLeftDegen){
+            if(bottomLeftDegen && topRightDegen){
+                T.setNeighbor(top_id,TOP_LEFT, SIZE_MAX);
+                T.setNeighbor(top_id,TOP_RIGHT, old_neighbors[TOP_RIGHT]);
+                T.setNeighbor(top_id,BOTTOM_LEFT, SIZE_MAX);
+                T.setNeighbor(top_id,BOTTOM_RIGHT, old_neighbors[TOP_RIGHT]);
+
+                T.setNeighbor(bottom_id,TOP_LEFT, old_neighbors[BOTTOM_LEFT]);
+                T.setNeighbor(bottom_id,TOP_RIGHT, SIZE_MAX);
+                T.setNeighbor(bottom_id,BOTTOM_LEFT, old_neighbors[BOTTOM_LEFT]);
+                T.setNeighbor(bottom_id,BOTTOM_RIGHT, SIZE_MAX);
+
+                T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id,bottom_id);
+                T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,top_id);
+            }
+        }
+        else if(bottomLeftDegen || bottomRightDegen){
+                T.setNeighbor(top_id,TOP_LEFT,old_neighbors[TOP_LEFT]);
+                T.setNeighbor(top_id,TOP_RIGHT,old_neighbors[TOP_RIGHT]);
+                T.setNeighbor(top_id,BOTTOM_LEFT,old_neighbors[TOP_LEFT]);
+                T.setNeighbor(top_id,BOTTOM_RIGHT,old_neighbors[TOP_RIGHT]);
+
+                T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id,top_id);
+                T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,top_id);
+
+                if(bottomLeftDegen){
+                    T.setNeighbor(bottom_id,TOP_LEFT,SIZE_MAX);
+                    T.setNeighbor(bottom_id,TOP_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+                    T.setNeighbor(bottom_id,BOTTOM_LEFT,SIZE_MAX);
+                    T.setNeighbor(bottom_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+
+                    T.updateOldNeighbors(true,old_neighbors[BOTTOM_RIGHT],trap_id,bottom_id);
+                }else{
+                    T.setNeighbor(bottom_id,TOP_LEFT,old_neighbors[BOTTOM_LEFT]);
+                    T.setNeighbor(bottom_id,TOP_RIGHT,SIZE_MAX);
+                    T.setNeighbor(bottom_id,BOTTOM_LEFT,old_neighbors[BOTTOM_LEFT]);
+                    T.setNeighbor(bottom_id,BOTTOM_RIGHT,SIZE_MAX);
+
+                    T.updateOldNeighbors(false,old_neighbors[BOTTOM_LEFT],trap_id,bottom_id);
+                }
+        }
+        else if(topLeftDegen || topRightDegen){
+            T.setNeighbor(bottom_id,TOP_LEFT,old_neighbors[BOTTOM_LEFT]);
+            T.setNeighbor(bottom_id,TOP_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+            T.setNeighbor(bottom_id,BOTTOM_LEFT,old_neighbors[BOTTOM_LEFT]);
+            T.setNeighbor(bottom_id,BOTTOM_RIGHT,old_neighbors[BOTTOM_RIGHT]);
+
+            T.updateOldNeighbors(false,old_neighbors[BOTTOM_LEFT],trap_id,bottom_id);
+            T.updateOldNeighbors(false,old_neighbors[BOTTOM_RIGHT],trap_id,bottom_id);
+
+            if(topLeftDegen){
+                T.setNeighbor(top_id,TOP_LEFT,SIZE_MAX);
+                T.setNeighbor(top_id,TOP_RIGHT,old_neighbors[TOP_RIGHT]);
+                T.setNeighbor(top_id,BOTTOM_LEFT,SIZE_MAX);
+                T.setNeighbor(top_id,BOTTOM_RIGHT,old_neighbors[TOP_RIGHT]);
+
+                T.updateOldNeighbors(true,old_neighbors[TOP_RIGHT],trap_id,top_id);
+            }
+            else{
+                T.setNeighbor(top_id,TOP_LEFT,old_neighbors[TOP_LEFT]);
+                T.setNeighbor(top_id,TOP_RIGHT,SIZE_MAX);
+                T.setNeighbor(top_id,BOTTOM_LEFT,old_neighbors[TOP_LEFT]);
+                T.setNeighbor(top_id,BOTTOM_RIGHT,SIZE_MAX);
+
+                T.updateOldNeighbors(false,old_neighbors[TOP_LEFT],trap_id,top_id);
+            }
+        }
+
+
+
     }
 
     switch(c){

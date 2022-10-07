@@ -10,6 +10,7 @@ namespace utility{
     bool pointEqual(cg3::Point2d p1, cg3::Point2d p2);
     bool segmentGoesUp(cg3::Point2d p1, cg3::Point2d p2);
     float slope(cg3::Point2d p1, cg3::Point2d p2);
+    float slope(cg3::Segment2d s);
 
 }
 

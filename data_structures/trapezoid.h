@@ -44,10 +44,6 @@ public:
     void setNeighbors(size_t neighbors[]);
     void setDagId(size_t index);
 
-    //static members
-    static int lastQueried;
-    static cg3::Color lastColor;
-
 private:
 
     //attributes of a Trapezoid
